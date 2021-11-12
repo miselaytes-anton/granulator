@@ -6,3 +6,12 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+dasp = { version = "0.11", features = ["all"] }
+#dasp_sample = "0.11.0"
+#dasp_frame = "0.11.0"
+#dasp_ring_buffer = "0.11.0"
+#dasp_interpolate = "0.11.0"
+anyhow = "1"
+cpal = "0.12"
+find_folder = "0.3"
+hound = "3"
