@@ -1,3 +1,5 @@
+mod granulator;
+
 use cpal;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use dasp::signal::{self, Signal};
@@ -47,7 +49,7 @@ fn main() -> Result<(), anyhow::Error> {
         let buffer: &mut [[f32; 2]] = data.to_frame_slice_mut().unwrap();
         for out_frame in buffer {
             match frames.next() {
-                Some(frame) => *out_frame = frame,
+                Some(frame) => *out_frame = granulator::granulator::process(frame),
                 None => {
                     complete_tx.try_send(()).ok();
                     *out_frame = dasp::Frame::EQUILIBRIUM;
