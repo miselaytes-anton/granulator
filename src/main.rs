@@ -1,5 +1,8 @@
 mod granulator;
 
+use crate::granulator::Granulator;
+use crate::granulator::SAMPLE_RATE;
+
 use cpal;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
 use dasp::signal::{self, Signal};
@@ -42,6 +45,8 @@ fn main() -> Result<(), anyhow::Error> {
 
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = std::sync::mpsc::sync_channel(1);
+    let delay_time_seconds: usize = 1;
+    let mut granulator = Granulator::new(SAMPLE_RATE * delay_time_seconds);
 
     // Create and run the CPAL stream.
     let err_fn = |err| eprintln!("an error occurred on stream: {}", err);
@@ -49,7 +54,10 @@ fn main() -> Result<(), anyhow::Error> {
         let buffer: &mut [[f32; 2]] = data.to_frame_slice_mut().unwrap();
         for out_frame in buffer {
             match frames.next() {
-                Some(frame) => *out_frame = granulator::granulator::process(frame),
+                Some(frame) => {
+                    let processed = granulator.process(frame);
+                    *out_frame = processed
+                }
                 None => {
                     complete_tx.try_send(()).ok();
                     *out_frame = dasp::Frame::EQUILIBRIUM;
