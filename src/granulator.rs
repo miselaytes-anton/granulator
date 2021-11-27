@@ -4,7 +4,7 @@ const NUM_CHANNELS: usize = 2;
 
 type Frame = [f32; NUM_CHANNELS];
 
-pub struct DelayLine {
+struct DelayLine {
     buffer: Vec<Frame>,
     write_index: usize,
 }
@@ -41,9 +41,51 @@ impl DelayLine {
     }
 }
 
+#[derive(Debug)]
+struct ParabolicEnvelope {
+    amplitude: f32,
+    slope: f32,
+    curve: f32,
+
+    duration_samples: usize,
+    grain_amplitude: f32,
+}
+
+impl ParabolicEnvelope {
+    pub fn new(duration_samples: usize, grain_amplitude: f32) -> ParabolicEnvelope {
+        let duration = 1.0 / (duration_samples as f32);
+        let duration2 = duration * duration;
+        let slope = 4.0 * grain_amplitude * (duration - duration2);
+
+        ParabolicEnvelope {
+            amplitude: 0.0,
+            slope,
+            curve: -8.0 * grain_amplitude * duration2,
+
+            duration_samples,
+            grain_amplitude,
+        }
+    }
+
+    pub fn process(&mut self) -> f32 {
+        self.amplitude = self.amplitude + self.slope;
+        self.slope = self.slope + self.curve;
+
+        if self.amplitude < 0.0 {
+            let new = ParabolicEnvelope::new(self.duration_samples, self.grain_amplitude);
+            self.amplitude = new.amplitude;
+            self.slope = new.slope;
+            self.curve = new.curve;
+        }
+
+        self.amplitude
+    }
+}
+
 pub struct Granulator {
     delay_length: usize,
     delay_line: DelayLine,
+    envelope: ParabolicEnvelope,
 }
 
 impl Granulator {
@@ -52,11 +94,16 @@ impl Granulator {
         Granulator {
             delay_length: delay_length,
             delay_line: DelayLine::new(MAX_DELAY_TIME_SECONDS * SAMPLE_RATE),
+
+            envelope: ParabolicEnvelope::new(500, 0.8),
         }
     }
     pub fn process(&mut self, frame: Frame) -> Frame {
         self.delay_line.write_and_advance(frame);
 
-        self.delay_line.read(self.delay_length)
+        let env = self.envelope.process();
+        let [left, right] = self.delay_line.read(self.delay_length);
+
+        [left * env, right * env]
     }
 }
