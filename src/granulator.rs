@@ -5,6 +5,7 @@ const MAX_DELAY_TIME_SECONDS: usize = 10;
 const NUM_CHANNELS: usize = 2;
 const GRAIN_AMPLITUDE: f32 = 0.95;
 const MAX_GRAINS: usize = 200;
+// Commonly 10 to 70 ms or 400 - 3000 samples for 41000 sr.
 const GRAIN_DURATION: usize = 800;
 const SILENT_FRAME: Frame = [0.0, 0.0];
 const DELAY_FEEDBACK: f32 = 0.9;

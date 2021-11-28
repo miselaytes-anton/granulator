@@ -1,14 +1,18 @@
 # Granulator
 
-- delay line
+## Some ideas
 
-- setup project
-- grain
-- granulator
-- Sequence strategy
-- Scheduler
-- Envelope
-- Source
+- different scheduling algorithm based on density
+- randomly offset grain delay_time, maybe using osc
+- modulate grains playback rate.
+- add a possibility to set Granulator parameters, e.g set_grain_density
+- Independent panning of each grain to create spatially diffused textures
+
+- different durations?
+- why did not I need interpolated sample look up?
+- Ramping the source playback rate of each grain to create glissandi grains or ‘chirps.’
+
+## References
 
 https://gyng.github.io/synthrs/synthrs/filter/struct.DelayLine.html
 
