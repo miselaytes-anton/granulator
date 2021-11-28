@@ -7,7 +7,9 @@ const GRAIN_AMPLITUDE: f32 = 0.95;
 const MAX_GRAINS: usize = 200;
 const GRAIN_DURATION: usize = 800;
 const SILENT_FRAME: Frame = [0.0, 0.0];
-const DELAY_FEEDBACK: f32 = 0.8;
+const DELAY_FEEDBACK: f32 = 0.9;
+// 1 - wet, 0 - dry
+const WET_DRY: f32 = 0.8;
 
 type Frame = [f32; NUM_CHANNELS];
 
@@ -210,13 +212,18 @@ impl Granulator {
     pub fn process(&mut self, frame: Frame) -> Frame {
         let [left, right] = frame;
         let [delayed_left, delayed_right] = self.scheduler.process();
+        let dry = 1.0 - WET_DRY;
+        let output: Frame = [
+            -left * dry + delayed_left * WET_DRY,
+            -right * dry + delayed_right * WET_DRY,
+        ];
         let processed_frame: Frame = [
-            left - delayed_left * DELAY_FEEDBACK,
-            right - delayed_right * DELAY_FEEDBACK,
+            left + delayed_left * DELAY_FEEDBACK,
+            right + delayed_right * DELAY_FEEDBACK,
         ];
 
         self.scheduler.delay_line.write_and_advance(processed_frame);
 
-        processed_frame
+        output
     }
 }
