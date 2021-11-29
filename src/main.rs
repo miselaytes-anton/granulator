@@ -46,7 +46,7 @@ fn main() -> Result<(), anyhow::Error> {
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = std::sync::mpsc::sync_channel(1);
     let _delay_time_seconds: usize = 2;
-    let mut granulator = Granulator::new(20050);
+    let mut granulator = Granulator::new(41000);
 
     // Create and run the CPAL stream.
     let err_fn = |err| eprintln!("an error occurred on stream: {}", err);

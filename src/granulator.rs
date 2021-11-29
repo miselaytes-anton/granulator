@@ -3,17 +3,19 @@ use rand::Rng;
 pub const SAMPLE_RATE: usize = 41000;
 const MAX_DELAY_TIME_SECONDS: usize = 10;
 const NUM_CHANNELS: usize = 2;
-const GRAIN_AMPLITUDE: f32 = 0.95;
+const GRAIN_AMPLITUDE: f32 = 0.5;
 const MAX_GRAINS: usize = 200;
 // Commonly 10 to 70 ms or 400 - 3000 samples for 41000 sr.
 const GRAIN_DURATION: usize = 800;
 const SILENT_FRAME: Frame = [0.0, 0.0];
-const DELAY_FEEDBACK: f32 = 0.9;
+const DELAY_FEEDBACK: f32 = 0.5;
 // 1 - wet, 0 - dry
 const WET_DRY: f32 = 0.8;
+const OUTPUT_GAIN: f32 = 1.5;
+
+const GRAIN_DENSITY: f32 = 100.0;
 
 type Frame = [f32; NUM_CHANNELS];
-
 struct DelayLine {
     buffer: Vec<Frame>,
     write_index: usize,
@@ -195,7 +197,17 @@ impl Scheduler {
 
     fn next_interonset(&self) -> usize {
         let mut rng = rand::thread_rng();
-        rng.gen_range(1..10000)
+        rng.gen_range(1..100)
+    }
+    #[allow(dead_code)]
+    fn next_interonset_density(&self) -> usize {
+        let mut rng = rand::thread_rng();
+        let random: f32 = rng.gen_range(0.1..1.0);
+        let interonset = -(random.ln() / GRAIN_DENSITY * 1000.0).ceil() as usize;
+        if interonset == 0 {
+            return 1;
+        }
+        interonset
     }
 }
 
@@ -213,10 +225,11 @@ impl Granulator {
     pub fn process(&mut self, frame: Frame) -> Frame {
         let [left, right] = frame;
         let [delayed_left, delayed_right] = self.scheduler.process();
+
         let dry = 1.0 - WET_DRY;
         let output: Frame = [
-            -left * dry + delayed_left * WET_DRY,
-            -right * dry + delayed_right * WET_DRY,
+            (-left * dry + delayed_left * WET_DRY) * OUTPUT_GAIN,
+            (-right * dry + delayed_right * WET_DRY) * OUTPUT_GAIN,
         ];
         let processed_frame: Frame = [
             left + delayed_left * DELAY_FEEDBACK,
