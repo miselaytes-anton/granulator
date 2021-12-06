@@ -3,17 +3,16 @@ use rand::Rng;
 pub const SAMPLE_RATE: usize = 41000;
 const MAX_DELAY_TIME_SECONDS: usize = 10;
 const NUM_CHANNELS: usize = 2;
-const GRAIN_AMPLITUDE: f32 = 0.5;
-const MAX_GRAINS: usize = 200;
+const GRAIN_AMPLITUDE: f32 = 0.7;
+const MAX_GRAINS: usize = 50;
 // Commonly 10 to 70 ms or 400 - 3000 samples for 41000 sr.
-const GRAIN_DURATION: usize = 800;
+const GRAIN_DURATION: usize = 3000;
 const SILENT_FRAME: Frame = [0.0, 0.0];
-const DELAY_FEEDBACK: f32 = 0.5;
+const DELAY_FEEDBACK: f32 = 0.2;
 // 1 - wet, 0 - dry
-const WET_DRY: f32 = 0.8;
-const OUTPUT_GAIN: f32 = 1.5;
-
-const GRAIN_DENSITY: f32 = 100.0;
+const WET_DRY: f32 = 1.0;
+const OUTPUT_GAIN: f32 = 0.5;
+const GRAIN_DENSITY: f32 = 200.0;
 
 type Frame = [f32; NUM_CHANNELS];
 struct DelayLine {
@@ -54,6 +53,12 @@ impl DelayLine {
             self.write_index - delay_length
         };
         read_index
+    }
+
+    pub fn set_delay_length(&mut self, delay_length: usize) {
+        assert!(delay_length <= self.buffer.len());
+
+        self.delay_length = delay_length;
     }
 }
 
@@ -189,6 +194,7 @@ impl Scheduler {
     fn activate_grain(&mut self) {
         for grain in self.grains.iter_mut() {
             if grain.is_active == false {
+                // grain.setDelayLength()
                 grain.activate();
                 continue;
             }
@@ -239,5 +245,8 @@ impl Granulator {
         self.scheduler.delay_line.write_and_advance(processed_frame);
 
         output
+    }
+    pub fn set_delay_length(&mut self, delay_length: usize) {
+        self.scheduler.delay_line.set_delay_length(delay_length);
     }
 }

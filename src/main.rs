@@ -2,6 +2,7 @@ mod granulator;
 
 use crate::granulator::Granulator;
 use crate::granulator::SAMPLE_RATE;
+use rand::Rng;
 
 use cpal;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
@@ -16,10 +17,11 @@ fn main() -> Result<(), anyhow::Error> {
         .unwrap();
     let reader = hound::WavReader::open(assets.join("piano.wav")).unwrap();
     let spec = reader.spec();
+    println!("{:?}", spec);
 
     // Read the interleaved samples and convert them to a signal.
     let samples = reader
-        .into_samples::<i32>()
+        .into_samples::<i16>()
         .filter_map(Result::ok)
         .map(|s| s.to_float_sample());
 
@@ -47,15 +49,22 @@ fn main() -> Result<(), anyhow::Error> {
     let (complete_tx, complete_rx) = std::sync::mpsc::sync_channel(1);
     let _delay_time_seconds: usize = 2;
     let mut granulator = Granulator::new(41000);
+    let mut counter = 0;
 
     // Create and run the CPAL stream.
     let err_fn = |err| eprintln!("an error occurred on stream: {}", err);
     let data_fn = move |data: &mut [f32], _info: &cpal::OutputCallbackInfo| {
+        let mut rng = rand::thread_rng();
         let buffer: &mut [[f32; 2]] = data.to_frame_slice_mut().unwrap();
         for out_frame in buffer {
             match frames.next() {
                 Some(frame) => {
                     let processed = granulator.process(frame);
+                    counter += 1;
+                    if counter == 20500 {
+                        counter = 0;
+                        granulator.set_delay_length(rng.gen_range(1000..41000));
+                    }
                     *out_frame = processed
                 }
                 None => {
