@@ -2,13 +2,9 @@
 
 ## Some ideas
 
-- clean up a bit, feedback, gains, try to get rid of distortion
 - global pitch control
-- global position control
-- global size control
-- set random positions for each grain in a proper way
-- set random playback speed for each grain in a proper way
-- add a possibility to set Granulator parameters, e.g set_grain_density
+- brake into multiple packages: granulator, process_wav, web
+- compile to web assembly and play around with knobs
 - Independent panning of each grain to create spatially diffused textures
 
 - different durations?
@@ -29,6 +25,7 @@ https://github.com/irh/freeverb-rs/blob/master/freeverb/src/all_pass.rs
 
 Mutable instruments clouds:
 
+- https://mutable-instruments.net/modules/beads/
 - https://mutable-instruments.net/modules/clouds/manual/
 - https://github.com/pichenettes/eurorack/tree/master/clouds/dsp
 
