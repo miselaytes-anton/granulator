@@ -12,7 +12,6 @@ const DELAY_FEEDBACK: f32 = 0.2;
 // 1 - wet, 0 - dry
 const WET_DRY: f32 = 1.0;
 const OUTPUT_GAIN: f32 = 0.5;
-const GRAIN_DENSITY: f32 = 200.0;
 
 type Frame = [f32; NUM_CHANNELS];
 struct DelayLine {
@@ -32,8 +31,8 @@ impl DelayLine {
         }
     }
 
-    pub fn read(&self) -> Frame {
-        self.buffer[self.get_read_index(self.delay_length)]
+    pub fn read(&self, delay_length: usize) -> Frame {
+        self.buffer[self.get_read_index(delay_length)]
     }
 
     pub fn write_and_advance(&mut self, frame: Frame) {
@@ -53,12 +52,6 @@ impl DelayLine {
             self.write_index - delay_length
         };
         read_index
-    }
-
-    pub fn set_delay_length(&mut self, delay_length: usize) {
-        assert!(delay_length <= self.buffer.len());
-
-        self.delay_length = delay_length;
     }
 }
 
@@ -108,14 +101,16 @@ struct Grain {
     is_active: bool,
     duration: usize,
     envelope: ParabolicEnvelope,
+    position: usize,
 }
 
 impl Grain {
-    pub fn new(duration: usize) -> Grain {
+    pub fn new(duration: usize, position: usize) -> Grain {
         Grain {
             is_active: false,
             duration,
             envelope: ParabolicEnvelope::new(duration, GRAIN_AMPLITUDE),
+            position,
         }
     }
 
@@ -124,7 +119,7 @@ impl Grain {
             return SILENT_FRAME;
         }
         let env = self.envelope.process();
-        let [left, right] = delay_line.read();
+        let [left, right] = delay_line.read(self.position);
 
         self.duration -= 1;
 
@@ -136,7 +131,8 @@ impl Grain {
         [left * env, right * env]
     }
 
-    pub fn activate(&mut self) {
+    pub fn activate(&mut self, position: usize) {
+        self.position = position;
         self.is_active = true;
     }
 }
@@ -144,23 +140,26 @@ impl Grain {
 struct Scheduler {
     next_onset: usize,
     grains: [Grain; MAX_GRAINS],
-
     delay_line: DelayLine,
+    position: usize,
+    density: f32,
 }
 
 impl Scheduler {
-    pub fn new(delay_line: DelayLine) -> Scheduler {
+    pub fn new(delay_line: DelayLine, position: usize, density: f32) -> Scheduler {
         Scheduler {
             next_onset: 0,
-            grains: [Grain::new(GRAIN_DURATION); MAX_GRAINS],
+            grains: [Grain::new(GRAIN_DURATION, position); MAX_GRAINS],
             delay_line,
+            position,
+            density,
         }
     }
 
     pub fn process(&mut self) -> Frame {
         if self.next_onset == 0 {
             self.activate_grain();
-            self.next_onset += self.next_interonset();
+            self.next_onset += self.next_interonset_density();
         }
         self.next_onset -= 1;
 
@@ -194,13 +193,13 @@ impl Scheduler {
     fn activate_grain(&mut self) {
         for grain in self.grains.iter_mut() {
             if grain.is_active == false {
-                // grain.setDelayLength()
-                grain.activate();
+                grain.activate(self.position);
                 continue;
             }
         }
     }
 
+    #[allow(dead_code)]
     fn next_interonset(&self) -> usize {
         let mut rng = rand::thread_rng();
         rng.gen_range(1..100)
@@ -209,11 +208,17 @@ impl Scheduler {
     fn next_interonset_density(&self) -> usize {
         let mut rng = rand::thread_rng();
         let random: f32 = rng.gen_range(0.1..1.0);
-        let interonset = -(random.ln() / GRAIN_DENSITY * 1000.0).ceil() as usize;
+        let interonset = -(random.ln() / self.density * 1000.0).ceil() as usize;
         if interonset == 0 {
             return 1;
         }
         interonset
+    }
+    pub fn set_position(&mut self, position: usize) {
+        self.position = position;
+    }
+    pub fn set_density(&mut self, density: f32) {
+        self.density = density;
     }
 }
 
@@ -222,10 +227,14 @@ pub struct Granulator {
 }
 
 impl Granulator {
-    pub fn new(delay_length: usize) -> Granulator {
-        let delay_line = DelayLine::new(MAX_DELAY_TIME_SECONDS * SAMPLE_RATE, delay_length);
+    /**
+     * position: 1 - 410000
+     * density: 1.0 - 100.0
+     */
+    pub fn new(position: usize, density: f32) -> Granulator {
+        let delay_line = DelayLine::new(MAX_DELAY_TIME_SECONDS * SAMPLE_RATE, position);
         Granulator {
-            scheduler: Scheduler::new(delay_line),
+            scheduler: Scheduler::new(delay_line, position, density),
         }
     }
     pub fn process(&mut self, frame: Frame) -> Frame {
@@ -246,7 +255,11 @@ impl Granulator {
 
         output
     }
-    pub fn set_delay_length(&mut self, delay_length: usize) {
-        self.scheduler.delay_line.set_delay_length(delay_length);
+    pub fn set_position(&mut self, position: usize) {
+        self.scheduler.set_position(position);
+    }
+
+    pub fn set_density(&mut self, density: f32) {
+        self.scheduler.set_density(density);
     }
 }

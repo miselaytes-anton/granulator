@@ -48,7 +48,7 @@ fn main() -> Result<(), anyhow::Error> {
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = std::sync::mpsc::sync_channel(1);
     let _delay_time_seconds: usize = 2;
-    let mut granulator = Granulator::new(41000);
+    let mut granulator = Granulator::new(41000, 50.0);
     let mut counter = 0;
 
     // Create and run the CPAL stream.
@@ -63,7 +63,8 @@ fn main() -> Result<(), anyhow::Error> {
                     counter += 1;
                     if counter == 20500 {
                         counter = 0;
-                        granulator.set_delay_length(rng.gen_range(1000..41000));
+                        granulator.set_position(rng.gen_range(1000..41000));
+                        granulator.set_density(rng.gen_range(1.0..100.0));
                     }
                     *out_frame = processed
                 }
