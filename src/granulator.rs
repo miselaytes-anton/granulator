@@ -16,20 +16,52 @@ type Frame = [f32; NUM_CHANNELS];
 struct DelayLine {
     buffer: Vec<Frame>,
     write_index: usize,
+    max_length: f32,
 }
 
 impl DelayLine {
-    pub fn new(max_length: usize, delay_length: usize) -> Self {
-        assert!(delay_length <= max_length);
-
+    pub fn new(max_length: usize) -> Self {
         Self {
             buffer: vec![[0.0, 0.0]; max_length],
             write_index: 0,
+            max_length: max_length as f32,
         }
     }
 
-    pub fn read(&self, delay_length: usize) -> Frame {
-        self.buffer[self.get_read_index(delay_length)]
+    /**
+    * float getSampleFractional(vector<float> &samples, float sampleIndex) {
+         unsigned sampleIndexCeil = ceil(sampleIndex);
+         float delta = sampleIndexCeil - sampleIndex;
+         float previousValueIndex =
+         sampleIndexCeil == 0 ? samples.size() - 1 : sampleIndexCeil - 1;
+         float previousValue = samples[previousValueIndex];
+         float nextValue = samples[sampleIndexCeil];
+
+         return nextValue + delta * (previousValue - nextValue);
+     }
+    * */
+    pub fn read(&self, delay_length: f32) -> Frame {
+        let index_fractional = self.get_read_index(delay_length);
+        let index_ceil = index_fractional.ceil();
+        let delta = index_ceil - index_fractional;
+        let previous_value_index = if index_ceil == 0.0 {
+            self.max_length - 1.0
+        } else {
+            index_ceil - 1.0
+        };
+
+        let [previous_left, previous_right] = self.buffer[previous_value_index as usize];
+        let [next_left, next_right] = self.buffer[index_ceil as usize];
+
+        let result = [
+            (next_left + delta) * (previous_left - next_left),
+            (next_right + delta) * (previous_right - next_right),
+        ];
+        print!(
+            "{}, {}, {}\n",
+            index_fractional, previous_value_index, index_ceil
+        );
+        result
     }
 
     pub fn write_and_advance(&mut self, frame: Frame) {
@@ -42,11 +74,12 @@ impl DelayLine {
         }
     }
 
-    fn get_read_index(&self, delay_length: usize) -> usize {
-        let read_index = if delay_length > self.write_index {
-            self.buffer.len() + self.write_index - delay_length
+    fn get_read_index(&self, delay_length: f32) -> f32 {
+        let write_index_f32 = self.write_index as f32;
+        let read_index = if delay_length > write_index_f32 {
+            self.max_length + write_index_f32 - delay_length
         } else {
-            self.write_index - delay_length
+            write_index_f32 - delay_length
         };
         read_index
     }
@@ -58,13 +91,13 @@ struct ParabolicEnvelope {
     slope: f32,
     curve: f32,
 
-    duration_samples: usize,
+    duration_samples: f32,
     grain_amplitude: f32,
 }
 
 impl ParabolicEnvelope {
-    pub fn new(duration_samples: usize, grain_amplitude: f32) -> ParabolicEnvelope {
-        let duration = 1.0 / (duration_samples as f32);
+    pub fn new(duration_samples: f32, grain_amplitude: f32) -> ParabolicEnvelope {
+        let duration = 1.0 / duration_samples;
         let duration2 = duration * duration;
         let slope = 4.0 * grain_amplitude * (duration - duration2);
 
@@ -96,20 +129,22 @@ impl ParabolicEnvelope {
 #[derive(Copy, Clone)]
 struct Grain {
     is_active: bool,
-    duration: usize,
+    duration: f32,
     envelope: ParabolicEnvelope,
     position: usize,
-    current_index: usize,
+    current_index: f32,
+    pitch: f32,
 }
 
 impl Grain {
-    pub fn new(position: usize, duration: usize) -> Grain {
+    pub fn new(position: usize, duration: f32, pitch: f32) -> Grain {
         Grain {
             is_active: false,
             duration,
-            envelope: ParabolicEnvelope::new(duration, GRAIN_AMPLITUDE),
+            envelope: ParabolicEnvelope::new(duration / pitch, GRAIN_AMPLITUDE),
             position,
-            current_index: 0,
+            current_index: 0.0,
+            pitch,
         }
     }
 
@@ -117,26 +152,35 @@ impl Grain {
         if self.is_active == false {
             return SILENT_FRAME;
         }
+        // if the speed is 2 it means current index is increased
+        // by 2 each iteration,
+        // self.position + self.current_index * (1 - pitch)
         let env = self.envelope.process();
-        let [left, right] = delay_line.read(self.position);
+        let mut adjusted_position =
+            self.position as f32 + self.current_index as f32 * (1.0 - self.pitch);
+        if adjusted_position < 0.0 {
+            adjusted_position = 0.0;
+        }
 
-        self.current_index += 1;
+        let [left, right] = delay_line.read(adjusted_position);
 
-        if self.current_index == self.duration {
+        self.current_index += 1.0;
+
+        if self.current_index * self.pitch >= self.duration {
             self.is_active = false;
-            self.current_index = 0;
+            self.current_index = 0.0;
         }
 
         [left * env, right * env]
     }
 
-    pub fn activate(&mut self, position: usize, duration: usize) {
+    pub fn activate(&mut self, position: usize, duration: f32, speed: f32) {
         if self.is_active == true {
             return;
         }
         self.position = position;
         self.duration = duration;
-        self.envelope = ParabolicEnvelope::new(duration, GRAIN_AMPLITUDE);
+        self.envelope = ParabolicEnvelope::new(duration as f32 / speed as f32, GRAIN_AMPLITUDE);
         self.is_active = true;
     }
 }
@@ -147,18 +191,26 @@ struct Scheduler {
     delay_line: DelayLine,
     position: usize,
     density: f32,
-    duration: usize,
+    duration: f32,
+    pitch: f32,
 }
 
 impl Scheduler {
-    pub fn new(delay_line: DelayLine, position: usize, density: f32, duration: usize) -> Scheduler {
+    pub fn new(
+        delay_line: DelayLine,
+        position: usize,
+        density: f32,
+        duration: f32,
+        pitch: f32,
+    ) -> Scheduler {
         Scheduler {
             next_onset: 0,
-            grains: [Grain::new(position, duration); MAX_GRAINS],
+            grains: [Grain::new(position, duration, pitch); MAX_GRAINS],
             delay_line,
             position,
             density,
             duration,
+            pitch,
         }
     }
 
@@ -199,7 +251,7 @@ impl Scheduler {
     fn activate_grain(&mut self) {
         for grain in self.grains.iter_mut() {
             if grain.is_active == false {
-                grain.activate(self.position, self.duration);
+                grain.activate(self.position, self.duration, self.pitch);
                 continue;
             }
         }
@@ -226,8 +278,11 @@ impl Scheduler {
     pub fn set_density(&mut self, density: f32) {
         self.density = density;
     }
-    pub fn set_duration(&mut self, duration: usize) {
+    pub fn set_duration(&mut self, duration: f32) {
         self.duration = duration;
+    }
+    pub fn set_pitch(&mut self, pitch: f32) {
+        self.set_pitch(pitch);
     }
 }
 
@@ -241,10 +296,10 @@ impl Granulator {
      * density: 1.0 - 100.0
      * duration: commonly 10 to 70 ms or 400 - 3000 samples for 41000 sr.
      */
-    pub fn new(position: usize, density: f32, duration: usize) -> Granulator {
-        let delay_line = DelayLine::new(MAX_DELAY_TIME_SECONDS * SAMPLE_RATE, position);
+    pub fn new(position: usize, density: f32, duration: f32, pitch: f32) -> Granulator {
+        let delay_line = DelayLine::new(MAX_DELAY_TIME_SECONDS * SAMPLE_RATE);
         Granulator {
-            scheduler: Scheduler::new(delay_line, position, density, duration),
+            scheduler: Scheduler::new(delay_line, position, density, duration, pitch),
         }
     }
     pub fn process(&mut self, frame: Frame) -> Frame {
@@ -273,7 +328,11 @@ impl Granulator {
         self.scheduler.set_density(density);
     }
 
-    pub fn set_duration(&mut self, duration: usize) {
+    pub fn set_duration(&mut self, duration: f32) {
         self.scheduler.set_duration(duration);
+    }
+
+    pub fn set_pitch(&mut self, pitch: f32) {
+        self.scheduler.set_pitch(pitch);
     }
 }
