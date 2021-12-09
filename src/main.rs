@@ -1,7 +1,6 @@
 mod granulator;
 
 use crate::granulator::Granulator;
-use crate::granulator::SAMPLE_RATE;
 use rand::Rng;
 
 use cpal;
