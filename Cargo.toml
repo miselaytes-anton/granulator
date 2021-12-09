@@ -1,5 +1,6 @@
 [workspace]
 members = [
   "app_wav",
+  "app-wasm",
   "granulator",
 ]

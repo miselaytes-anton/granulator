@@ -193,6 +193,7 @@ pub struct Granulator {
     delay_line: DelayLine,
     position: usize,
     duration: usize,
+    volume: f32,
 }
 
 impl Granulator {
@@ -209,6 +210,7 @@ impl Granulator {
             delay_line,
             position,
             duration,
+            volume: 0.5,
         }
     }
     pub fn process(&mut self, input_frame: Frame) -> Frame {
@@ -222,18 +224,19 @@ impl Granulator {
 
         self.delay_line.write_and_advance(feedback_frame);
 
-        Granulator::get_output_frame(input_frame, synthesized_frame)
+        self.get_output_frame(input_frame, synthesized_frame)
     }
 
     fn get_output_frame(
+        &mut self,
         [input_left, input_right]: Frame,
         [synthesized_left, synthesized_right]: Frame,
     ) -> Frame {
         let dry = 1.0 - WET_DRY;
 
         [
-            (-input_left * dry + synthesized_left * WET_DRY) * OUTPUT_GAIN,
-            (-input_right * dry + synthesized_right * WET_DRY) * OUTPUT_GAIN,
+            (-input_left * dry + synthesized_left * WET_DRY) * self.volume,
+            (-input_right * dry + synthesized_right * WET_DRY) * self.volume,
         ]
     }
 
@@ -296,5 +299,8 @@ impl Granulator {
 
     pub fn set_duration(&mut self, duration: usize) {
         self.duration = duration;
+    }
+    pub fn set_volume(&mut self, volume: f32) {
+        self.volume = volume;
     }
 }
