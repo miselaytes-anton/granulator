@@ -1,6 +1,4 @@
-mod granulator;
-
-use crate::granulator::Granulator;
+use granulator::Granulator;
 use rand::Rng;
 
 use cpal;
@@ -12,7 +10,7 @@ use dasp::Sample;
 fn main() -> Result<(), anyhow::Error> {
     // Find and load the wav.
     let assets = find_folder::Search::ParentsThenKids(5, 5)
-        .for_folder("assets")
+        .for_folder("app_wav/assets")
         .unwrap();
     let reader = hound::WavReader::open(assets.join("piano.wav")).unwrap();
     let spec = reader.spec();

@@ -1,5 +1,11 @@
 # Granulator
 
+## Run
+
+```
+cargo run -p app_wav
+```
+
 ## Some ideas
 
 - global pitch control
