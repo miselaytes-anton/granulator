@@ -3,18 +3,31 @@
     <meta content="text/html;charset=utf-8" http-equiv="Content-Type"/>
   </head>
   <body>
+    <div style="float: left;">
     <h1>Granulator</h1>
     <audio src="/static/piano.wav" loop></audio>
 
-    <input id="density" type="range" name="volume" min="1" max="100" value="20"/>
-    <label for="density">Density</label>
-    <br/>
+    <h3>Density</h3>
+    <input id="density" type="range" name="density" min="1" max="60" value="20"/>
+
+    <h3>Volume</h3>
     <input id="volume" type="range" name="volume" min="1" max="10" value="5"/>
-    <label for="volume">Volume</label>
+
+    <h3>Position</h3>
+    <input id="position" type="range" name="position" min="10000" max="410000" value="41000"/>
+
+    <h3>Duration</h3>
+    <input id="duration" type="range" name="duration" min="300" max="3000" value="3000"/>
+
+
     <br/>
     <button data-playing="false" role="switch" aria-checked="false">
         <span>Play/Pause</span>
     </button>
-    
+  </div>
+  <div style="float: left;">
+    <canvas id="canvas" height="600" width="1500"></canvas>
+  </div>
+    </body>
   </body>
 </html>

@@ -46,6 +46,8 @@ fn main() -> Result<(), anyhow::Error> {
     let (complete_tx, complete_rx) = std::sync::mpsc::sync_channel(1);
     let _delay_time_seconds: usize = 2;
     let mut granulator = Granulator::new(41000, 50.0, 3000);
+    granulator.set_new_grain_hook(Some(|duration| println!("duration = {}\n", duration)));
+
     let mut counter = 0;
     let mut duration_counter = 0;
 
@@ -66,7 +68,11 @@ fn main() -> Result<(), anyhow::Error> {
                     }
                     duration_counter += 1;
                     if duration_counter == 41000 {
-                        granulator.set_duration(rng.gen_range(1000..3000))
+                        duration_counter = 0;
+                        let duration: usize = rng.gen_range(1000..3000);
+                        // println!("set: {}", duration);
+
+                        granulator.set_duration(duration)
                     }
                     *out_frame = processed
                 }

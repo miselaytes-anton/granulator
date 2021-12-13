@@ -10,6 +10,7 @@ wasm.then((wasm) => {
   const track = context.createMediaElementSource(audioElement);
   const granulatorProcessor = context.createScriptProcessor(512, 2, 2);
   const granulator = new wasm.Granulator();
+  granulator.set_new_grain_hook();
 
   track.connect(granulatorProcessor);
   granulatorProcessor.connect(context.destination);
@@ -28,14 +29,30 @@ wasm.then((wasm) => {
 
   const densitySlider = document.getElementById("density");
   densitySlider.addEventListener("input", function () {
-    console.log("density", densitySlider.value);
-    granulator.set_density(densitySlider.value);
+    const value = parseFloat(densitySlider.value);
+    console.log("density", value);
+    granulator.set_density(value);
   });
 
   const volumeSlider = document.getElementById("volume");
   volumeSlider.addEventListener("input", function () {
-    console.log("volume", volumeSlider.value / 10);
-    granulator.set_volume(volumeSlider.value / 10);
+    const value = parseFloat(volumeSlider.value / 10);
+    console.log("volume", value);
+    granulator.set_volume(value);
+  });
+
+  const positionsSlider = document.getElementById("position");
+  positionsSlider.addEventListener("input", function () {
+    const value = parseInt(positionsSlider.value);
+    console.log("position", value);
+    granulator.set_position(value);
+  });
+
+  const durationSlider = document.getElementById("duration");
+  durationSlider.addEventListener("input", function () {
+    const value = parseInt(durationSlider.value);
+    console.log("duration", value);
+    granulator.set_duration(value);
   });
 
   // select our play button

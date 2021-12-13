@@ -5,11 +5,9 @@ const MAX_DELAY_TIME_SECONDS: usize = 10;
 const NUM_CHANNELS: usize = 2;
 const GRAIN_AMPLITUDE: f32 = 0.7;
 const MAX_GRAINS: usize = 100;
-const DELAY_FEEDBACK: f32 = 0.2;
+const DELAY_FEEDBACK: f32 = 0.6;
 // 1 - wet, 0 - dry
 const WET_DRY: f32 = 1.0;
-const OUTPUT_GAIN: f32 = 0.5;
-
 const SILENT_FRAME: Frame = [0.0, 0.0];
 
 type Frame = [f32; NUM_CHANNELS];
@@ -187,6 +185,8 @@ impl Scheduler {
     }
 }
 
+type NewGrainHook = fn(duration: usize);
+
 pub struct Granulator {
     scheduler: Scheduler,
     grains_pool: [Grain; MAX_GRAINS],
@@ -194,6 +194,7 @@ pub struct Granulator {
     position: usize,
     duration: usize,
     volume: f32,
+    pub new_grain_hook: Option<NewGrainHook>,
 }
 
 impl Granulator {
@@ -211,12 +212,17 @@ impl Granulator {
             position,
             duration,
             volume: 0.5,
+            new_grain_hook: None,
         }
     }
     pub fn process(&mut self, input_frame: Frame) -> Frame {
         let should_start_new_grain = self.scheduler.advance();
         if should_start_new_grain {
             self.activate_grain();
+            match &self.new_grain_hook {
+                Some(new_grain_hook) => new_grain_hook(self.duration),
+                None => {}
+            }
         }
 
         let synthesized_frame = self.synthesize_active_grains();
@@ -302,5 +308,8 @@ impl Granulator {
     }
     pub fn set_volume(&mut self, volume: f32) {
         self.volume = volume;
+    }
+    pub fn set_new_grain_hook(&mut self, new_grain_hook: Option<NewGrainHook>) {
+        self.new_grain_hook = new_grain_hook;
     }
 }
