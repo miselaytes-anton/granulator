@@ -36,15 +36,15 @@ wasm.then((wasm) => {
   });
 
   const volumeSlider = document.getElementById("volume");
-  densitySlider.volume = granulatorProcessor.volume;
+  densitySlider.value = granulatorProcessor.volume;
   volumeSlider.addEventListener("input", function () {
-    const value = parseFloat(volumeSlider.value / 10);
+    const value = parseFloat(volumeSlider.value);
     console.log("volume", value);
     granulator.set_volume(value);
   });
 
   const positionsSlider = document.getElementById("position");
-  densitySlider.position = granulatorProcessor.position;
+  densitySlider.value = granulatorProcessor.position;
   positionsSlider.addEventListener("input", function () {
     const value = parseInt(positionsSlider.value);
     console.log("position", value);
@@ -52,11 +52,27 @@ wasm.then((wasm) => {
   });
 
   const durationSlider = document.getElementById("duration");
-  densitySlider.duration = granulatorProcessor.duration;
+  densitySlider.value = granulatorProcessor.duration;
   durationSlider.addEventListener("input", function () {
     const value = parseInt(durationSlider.value);
     console.log("duration", value);
     granulator.set_duration(value);
+  });
+
+  const feedbackSlider = document.getElementById("feedback");
+  feedbackSlider.value = granulatorProcessor.feedback;
+  feedbackSlider.addEventListener("input", function () {
+    const value = parseFloat(feedbackSlider.value);
+    console.log("feedback", value);
+    granulator.set_feedback(value);
+  });
+
+  const wetDrySlider = document.getElementById("wet-dry");
+  wetDrySlider.value = granulatorProcessor.wet_dry;
+  wetDrySlider.addEventListener("input", function () {
+    const value = parseFloat(wetDrySlider.value);
+    console.log("wet-dry", value);
+    granulator.set_wet_dry(value);
   });
 
   // select our play button

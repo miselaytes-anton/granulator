@@ -44,6 +44,14 @@ impl Granulator {
         self.0.set_volume(volume)
     }
 
+    pub fn set_wet_dry(&mut self, wet_dry: f32) {
+        self.0.set_wet_dry(wet_dry)
+    }
+
+    pub fn set_feedback(&mut self, feedback: f32) {
+        self.0.set_feedback(feedback)
+    }
+
     pub fn set_position(&mut self, position: usize) {
         self.0.set_position(position)
     }
@@ -54,8 +62,8 @@ impl Granulator {
 
     pub fn set_new_grain_hook(&mut self) {
         let hook = |duration: usize| unsafe {
-            let jsDuration: JsValue = duration.into();
-            addGrain(jsDuration);
+            let js_duration: JsValue = duration.into();
+            addGrain(js_duration);
         };
         self.0.set_new_grain_hook(Some(hook));
     }

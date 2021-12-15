@@ -38,7 +38,7 @@ const draw = () => {
   drawBackground();
   drawPlayLine();
 
-  while (grains[0].x > canvasWidth) {
+  while (grains.length > 0 && grains[0].x > canvasWidth) {
     grains.shift();
   }
 

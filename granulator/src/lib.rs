@@ -5,9 +5,10 @@ const MAX_DELAY_TIME_SECONDS: usize = 10;
 const NUM_CHANNELS: usize = 2;
 const GRAIN_AMPLITUDE: f32 = 0.7;
 const MAX_GRAINS: usize = 100;
-const DELAY_FEEDBACK: f32 = 0.6;
+const DEFAULT_DELAY_FEEDBACK: f32 = 0.6;
+const DEFAULT_VOLUME: f32 = 0.5;
 // 1 - wet, 0 - dry
-const WET_DRY: f32 = 1.0;
+const DEFAULT_WET_DRY: f32 = 1.0;
 const SILENT_FRAME: Frame = [0.0, 0.0];
 
 type Frame = [f32; NUM_CHANNELS];
@@ -194,6 +195,8 @@ pub struct Granulator {
     position: usize,
     duration: usize,
     volume: f32,
+    feedback: f32,
+    wet_dry: f32,
     pub new_grain_hook: Option<NewGrainHook>,
 }
 
@@ -211,7 +214,9 @@ impl Granulator {
             delay_line,
             position,
             duration,
-            volume: 0.5,
+            volume: DEFAULT_VOLUME,
+            feedback: DEFAULT_DELAY_FEEDBACK,
+            wet_dry: DEFAULT_WET_DRY,
             new_grain_hook: None,
         }
     }
@@ -226,7 +231,7 @@ impl Granulator {
         }
 
         let synthesized_frame = self.synthesize_active_grains();
-        let feedback_frame = Granulator::get_feedback_frame(input_frame, synthesized_frame);
+        let feedback_frame = self.get_feedback_frame(input_frame, synthesized_frame);
 
         self.delay_line.write_and_advance(feedback_frame);
 
@@ -238,21 +243,22 @@ impl Granulator {
         [input_left, input_right]: Frame,
         [synthesized_left, synthesized_right]: Frame,
     ) -> Frame {
-        let dry = 1.0 - WET_DRY;
+        let dry = 1.0 - self.wet_dry;
 
         [
-            (-input_left * dry + synthesized_left * WET_DRY) * self.volume,
-            (-input_right * dry + synthesized_right * WET_DRY) * self.volume,
+            (-input_left * dry + synthesized_left * self.wet_dry) * self.volume,
+            (-input_right * dry + synthesized_right * self.wet_dry) * self.volume,
         ]
     }
 
     fn get_feedback_frame(
+        &mut self,
         [input_left, input_right]: Frame,
         [synthesized_left, synthesized_right]: Frame,
     ) -> Frame {
         [
-            input_left + synthesized_left * DELAY_FEEDBACK,
-            input_right + synthesized_right * DELAY_FEEDBACK,
+            input_left + synthesized_left * self.feedback,
+            input_right + synthesized_right * self.feedback,
         ]
     }
 
@@ -311,5 +317,13 @@ impl Granulator {
     }
     pub fn set_new_grain_hook(&mut self, new_grain_hook: Option<NewGrainHook>) {
         self.new_grain_hook = new_grain_hook;
+    }
+
+    pub fn set_feedback(&mut self, feedback: f32) {
+        self.feedback = feedback;
+    }
+
+    pub fn set_wet_dry(&mut self, wet_dry: f32) {
+        self.wet_dry = wet_dry;
     }
 }

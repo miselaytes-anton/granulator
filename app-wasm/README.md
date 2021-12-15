@@ -19,3 +19,8 @@ https://stackoverflow.com/questions/27831944/how-do-i-store-a-closure-in-a-struc
 https://developer.mozilla.org/en-US/docs/WebAssembly/Rust_to_wasm
 
 https://github.com/rustwasm/wasm-bindgen/issues/2486
+
+### Audio worklet
+
+https://developer.mozilla.org/en-US/docs/Web/API/Web_Audio_API/Using_AudioWorklet
+https://www.toptal.com/webassembly/webassembly-rust-tutorial-web-audio
