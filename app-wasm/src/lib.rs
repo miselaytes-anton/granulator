@@ -2,7 +2,7 @@ use wasm_bindgen::prelude::*;
 
 #[wasm_bindgen(module = "/canvas.js")]
 extern "C" {
-    fn draw(duration: JsValue);
+    fn addGrain(duration: JsValue);
 }
 
 #[wasm_bindgen]
@@ -10,7 +10,7 @@ pub struct Granulator(granulator::Granulator);
 
 impl Default for Granulator {
     fn default() -> Self {
-        Self(granulator::Granulator::new(41000, 50.0, 3000))
+        Self(granulator::Granulator::new(41000, 1.0, 300))
     }
 }
 
@@ -54,8 +54,8 @@ impl Granulator {
 
     pub fn set_new_grain_hook(&mut self) {
         let hook = |duration: usize| unsafe {
-            let js: JsValue = duration.into();
-            draw(js);
+            let jsDuration: JsValue = duration.into();
+            addGrain(jsDuration);
         };
         self.0.set_new_grain_hook(Some(hook));
     }

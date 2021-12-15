@@ -1,51 +1,77 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
+const canvasWidth = canvas.width;
+const canvasHeight = canvas.height;
 
-let shouldInit = true;
+const zoomLevel = 10;
+const sampleRate = 41000;
+const scalingCoefficient = (zoomLevel * canvasWidth) / sampleRate;
+const minGrainDurationMs = 300;
 
-const maxSimultaneousGrains = 100;
+// How often grains get redrawn.
+const refreshRateMs = 40;
+const grainDisappearMs = 1000;
+const framesPerSecond = grainDisappearMs / refreshRateMs;
+const advanceByX = sampleRate / refreshRateMs / zoomLevel;
+
+const playLineX = Math.round(minGrainDurationMs * scalingCoefficient);
+const grainTracks = 25;
 const grains = [];
-const canvasWidth = 1500;
-const canvasHeight = 1000;
-const refreshRate = 40;
-const framesPerSecond = 1000 / refreshRate;
-const advanceByX = canvasWidth / refreshRate;
-const advanceByY = canvasHeight / maxSimultaneousGrains;
 
-let grainIndex = 0;
+const drawPlayLine = () => {
+  ctx.strokeStyle = "black";
+  ctx.lineWidth = 1;
 
-const drawGrains = () => {
+  ctx.beginPath();
+  ctx.moveTo(playLineX, 0);
+  ctx.lineTo(playLineX, canvasHeight);
+  ctx.stroke();
+};
+
+const drawBackground = () => {
   ctx.clearRect(0, 0, canvasWidth, canvasHeight);
   ctx.fillStyle = "#bcece0";
   ctx.fillRect(0, 0, canvasWidth, canvasHeight);
+};
+
+const draw = () => {
+  drawBackground();
+  drawPlayLine();
 
   while (grains[0].x > canvasWidth) {
     grains.shift();
   }
 
   grains.forEach((grain) => {
-    grain.x += advanceByX;
-    const opacity = parseFloat((1 - grain.x / canvasWidth).toFixed(3));
-    ctx.fillStyle = `rgba(76,82,112,${opacity})`;
+    ctx.fillStyle = "rgba(76,82,112,1";
 
     ctx.fillRect(grain.x, grain.y, grain.width, grain.height);
+    grain.x += advanceByX;
   });
 };
 
-export const draw = (duration) => {
-  const width = Math.max(Math.round(parseInt(duration) / 100), 1);
-  const index = grainIndex % maxSimultaneousGrains;
+let totalGrainsAdded = 0;
+let shouldInitDraw = true;
+
+export const addGrain = (duration) => {
+  const width = Math.max(
+    Math.round(parseInt(duration) * scalingCoefficient),
+    1
+  );
+  const grainTrackIndex = totalGrainsAdded % grainTracks;
+  const height = 10;
+
   grains.push({
     width,
-    height: 3,
-    x: 0,
-    y: index * 6,
+    height,
+    x: playLineX - width,
+    y: height + grainTrackIndex * height * 3,
   });
 
-  if (shouldInit) {
-    setInterval(drawGrains, framesPerSecond);
+  if (shouldInitDraw) {
+    setInterval(draw, framesPerSecond);
 
-    shouldInit = false;
+    shouldInitDraw = false;
   }
-  grainIndex++;
+  totalGrainsAdded++;
 };

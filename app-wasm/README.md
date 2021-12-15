@@ -12,6 +12,5 @@ https://stackoverflow.com/questions/27831944/how-do-i-store-a-closure-in-a-struc
 
 https://developer.mozilla.org/en-US/docs/WebAssembly/Rust_to_wasm
 
-
 /// Check:
 https://github.com/rustwasm/wasm-bindgen/issues/2486
