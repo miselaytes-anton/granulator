@@ -43,15 +43,16 @@ const draw = () => {
   }
 
   grains.forEach((grain) => {
-    ctx.fillStyle = "rgba(76,82,112,1";
+    ctx.fillStyle = "rgba(76,82,112,1)";
 
     ctx.fillRect(grain.x, grain.y, grain.width, grain.height);
     grain.x += advanceByX;
   });
 };
 
+setInterval(draw, framesPerSecond);
+
 let totalGrainsAdded = 0;
-let shouldInitDraw = true;
 
 export const addGrain = (duration) => {
   const width = Math.max(
@@ -68,10 +69,5 @@ export const addGrain = (duration) => {
     y: height + grainTrackIndex * height * 3,
   });
 
-  if (shouldInitDraw) {
-    setInterval(draw, framesPerSecond);
-
-    shouldInitDraw = false;
-  }
   totalGrainsAdded++;
 };

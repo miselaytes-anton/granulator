@@ -28,6 +28,7 @@ wasm.then((wasm) => {
   };
 
   const densitySlider = document.getElementById("density");
+  densitySlider.value = granulatorProcessor.density;
   densitySlider.addEventListener("input", function () {
     const value = parseFloat(densitySlider.value);
     console.log("density", value);
@@ -35,6 +36,7 @@ wasm.then((wasm) => {
   });
 
   const volumeSlider = document.getElementById("volume");
+  densitySlider.volume = granulatorProcessor.volume;
   volumeSlider.addEventListener("input", function () {
     const value = parseFloat(volumeSlider.value / 10);
     console.log("volume", value);
@@ -42,6 +44,7 @@ wasm.then((wasm) => {
   });
 
   const positionsSlider = document.getElementById("position");
+  densitySlider.position = granulatorProcessor.position;
   positionsSlider.addEventListener("input", function () {
     const value = parseInt(positionsSlider.value);
     console.log("position", value);
@@ -49,6 +52,7 @@ wasm.then((wasm) => {
   });
 
   const durationSlider = document.getElementById("duration");
+  densitySlider.duration = granulatorProcessor.duration;
   durationSlider.addEventListener("input", function () {
     const value = parseInt(durationSlider.value);
     console.log("duration", value);

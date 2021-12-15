@@ -1,0 +1,33 @@
+body {
+  font-family: "Helvetica", "Arial", sans-serif;
+  color: rgba(76, 82, 112, 1);
+  font-size: 9pt;
+  background-color: #bcece0;
+}
+
+div {
+  float: left;
+}
+
+button {
+  padding: 10;
+  margin-top: 20;
+}
+
+h1 {
+  margin-bottom: 50px;
+  font-size: 18pt;
+}
+
+.container {
+  height: 100%;
+  position: relative;
+}
+
+.vertical-center {
+  margin: 0;
+  position: absolute;
+  top: 50%;
+  -ms-transform: translateY(-50%);
+  transform: translateY(-50%);
+}
