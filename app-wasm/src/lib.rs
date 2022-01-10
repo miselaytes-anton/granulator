@@ -10,7 +10,7 @@ pub struct Granulator(granulator::Granulator);
 
 impl Default for Granulator {
     fn default() -> Self {
-        Self(granulator::Granulator::new(41000, 1.0, 300))
+        Self(granulator::Granulator::new(41000, 1.0, 300, 1.0))
     }
 }
 
@@ -66,5 +66,9 @@ impl Granulator {
             addGrain(js_duration);
         };
         self.0.set_new_grain_hook(Some(hook));
+    }
+
+    pub fn set_pitch(&mut self, pitch: f32) {
+        self.0.set_pitch(pitch)
     }
 }

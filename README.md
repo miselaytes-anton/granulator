@@ -8,15 +8,10 @@ cargo run -p app_wav
 
 ## Some ideas
 
-- global pitch control
-  - change to float
-  - get interpolated sample position
-- brake into multiple packages: granulator, process_wav, web
+- Randomize position, density, grain length based on "chaos" parameter
 - Independent panning of each grain to create spatially diffused textures
-
-- different durations?
-- why did not I need interpolated sample look up?
 - Ramping the source playback rate of each grain to create glissandi grains or ‘chirps.’
+- Make duration a float
 
 ## References
 

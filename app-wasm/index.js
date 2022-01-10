@@ -20,7 +20,9 @@ wasm.then((wasm) => {
   });
 
   track.connect(granulatorProcessor);
-  granulatorProcessor.connect(reverb.input);
+  //granulatorProcessor.connect(reverb.input);
+  granulatorProcessor.connect(context.destination);
+
   reverb.connect(context.destination);
 
   context.suspend();
@@ -66,6 +68,14 @@ wasm.then((wasm) => {
     const value = parseInt(durationSlider.value);
     console.log("duration", value);
     granulator.set_duration(value);
+  });
+
+  const pitchSlider = document.getElementById("pitch");
+  pitchSlider.value = granulatorProcessor.pitch;
+  pitchSlider.addEventListener("input", function () {
+    const value = pitchSlider.value;
+    console.log("pitch", value);
+    granulator.set_pitch(value);
   });
 
   const feedbackSlider = document.getElementById("feedback");

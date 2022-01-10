@@ -14,6 +14,7 @@ pub struct Granulator {
     delay_line: DelayLine,
     position: usize,
     duration: usize,
+    pitch: f32,
     volume: f32,
     feedback: f32,
     wet_dry: f32,
@@ -24,16 +25,17 @@ impl Granulator {
     /**
      * position: 1 - 410000
      * density: 1.0 - 100.0
-     * duration: commonly 10 to 70 ms or 400 - 3000 samples for 41000 sr.
+     * duration: in samples, commonly 400 - 3000 samples (so that it matches 10 to 70 ms for 41000 sr)
      */
-    pub fn new(position: usize, density: f32, duration: usize) -> Granulator {
+    pub fn new(position: usize, density: f32, duration: usize, pitch: f32) -> Granulator {
         let delay_line = DelayLine::new(MAX_DELAY_TIME_SECONDS * SAMPLE_RATE, position);
         Granulator {
             scheduler: Scheduler::new(density),
-            grains_pool: [Grain::new(position, duration); MAX_GRAINS],
+            grains_pool: [Grain::new(position as f32, duration as f32, pitch); MAX_GRAINS],
             delay_line,
             position,
             duration,
+            pitch,
             volume: DEFAULT_VOLUME,
             feedback: DEFAULT_DELAY_FEEDBACK,
             wet_dry: DEFAULT_WET_DRY,
@@ -115,7 +117,7 @@ impl Granulator {
     fn activate_grain(&mut self) {
         for grain in self.grains_pool.iter_mut() {
             if grain.is_active == false {
-                grain.activate(self.position, self.duration);
+                grain.activate(self.position as f32, self.duration as f32, self.pitch);
                 continue;
             }
         }
@@ -145,5 +147,9 @@ impl Granulator {
 
     pub fn set_wet_dry(&mut self, wet_dry: f32) {
         self.wet_dry = wet_dry;
+    }
+
+    pub fn set_pitch(&mut self, pitch: f32) {
+        self.pitch = pitch;
     }
 }

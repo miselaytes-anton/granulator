@@ -4,13 +4,13 @@ pub struct ParabolicEnvelope {
     slope: f32,
     curve: f32,
 
-    duration_samples: usize,
+    duration_samples: f32,
     grain_amplitude: f32,
 }
 
 impl ParabolicEnvelope {
-    pub fn new(duration_samples: usize, grain_amplitude: f32) -> ParabolicEnvelope {
-        let duration = 1.0 / (duration_samples as f32);
+    pub fn new(duration_samples: f32, grain_amplitude: f32) -> ParabolicEnvelope {
+        let duration = 1.0 / duration_samples;
         let duration2 = duration * duration;
         let slope = 4.0 * grain_amplitude * (duration - duration2);
 
