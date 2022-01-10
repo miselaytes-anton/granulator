@@ -1,3 +1,4 @@
+import SimpleReverb from "./reverb";
 const wasm = import("./pkg");
 
 wasm.then((wasm) => {
@@ -12,8 +13,16 @@ wasm.then((wasm) => {
   const granulator = new wasm.Granulator();
   granulator.set_new_grain_hook();
 
+  const reverb = new SimpleReverb(context, {
+    seconds: 1.0,
+    decay: 1.0,
+    reverse: 0,
+  });
+
   track.connect(granulatorProcessor);
-  granulatorProcessor.connect(context.destination);
+  granulatorProcessor.connect(reverb.input);
+  reverb.connect(context.destination);
+
   context.suspend();
 
   granulatorProcessor.onaudioprocess = function (event) {
