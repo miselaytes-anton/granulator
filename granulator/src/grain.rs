@@ -28,7 +28,7 @@ impl Grain {
             return SILENT_FRAME;
         }
         let env = self.envelope.process();
-        let [left, right] = delay_line.read(self.position);
+        let [left, right] = delay_line.read(self.position as f32);
 
         self.current_index += 1.0;
 
