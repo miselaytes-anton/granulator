@@ -30,7 +30,7 @@ impl Granulator {
         let delay_line = DelayLine::new(MAX_DELAY_TIME_SECONDS * SAMPLE_RATE, position);
         Granulator {
             scheduler: Scheduler::new(density),
-            grains_pool: [Grain::new(position, duration); MAX_GRAINS],
+            grains_pool: [Grain::new(position, duration as f32); MAX_GRAINS],
             delay_line,
             position,
             duration,
@@ -115,7 +115,7 @@ impl Granulator {
     fn activate_grain(&mut self) {
         for grain in self.grains_pool.iter_mut() {
             if grain.is_active == false {
-                grain.activate(self.position, self.duration);
+                grain.activate(self.position, self.duration as f32);
                 continue;
             }
         }
