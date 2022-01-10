@@ -17,7 +17,7 @@ impl Grain {
         Grain {
             is_active: false,
             duration,
-            envelope: ParabolicEnvelope::new(duration, GRAIN_AMPLITUDE),
+            envelope: ParabolicEnvelope::new(duration as f32, GRAIN_AMPLITUDE),
             position,
             current_index: 0,
         }
@@ -46,7 +46,7 @@ impl Grain {
         }
         self.position = position;
         self.duration = duration;
-        self.envelope = ParabolicEnvelope::new(duration, GRAIN_AMPLITUDE);
+        self.envelope = ParabolicEnvelope::new(duration as f32, GRAIN_AMPLITUDE);
         self.is_active = true;
     }
 }
