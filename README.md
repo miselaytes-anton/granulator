@@ -9,8 +9,9 @@ cargo run -p app_wav
 ## Some ideas
 
 - global pitch control
+  - change to float
+  - get interpolated sample position
 - brake into multiple packages: granulator, process_wav, web
-- compile to web assembly and play around with knobs
 - Independent panning of each grain to create spatially diffused textures
 
 - different durations?
