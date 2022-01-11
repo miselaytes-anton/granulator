@@ -315,6 +315,10 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "9f6d018fb95a0b59f854aed68ecd96ce2b80af7911b92b1fed3c4b1fa516b91b"
 
 [[package]]
+name = "freeverb"
+version = "0.1.0"
+
+[[package]]
 name = "getrandom"
 version = "0.2.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -337,6 +341,7 @@ checksum = "9b919933a397b79c37e33b77bb2aa3dc8eb6e165ad809e58ff75bc7db2e34574"
 name = "granulator"
 version = "0.1.0"
 dependencies = [
+ "freeverb",
  "rand",
 ]
 

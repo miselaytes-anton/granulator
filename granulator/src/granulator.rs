@@ -2,6 +2,7 @@ use crate::delay_line::DelayLine;
 use crate::frame::{Frame, SILENT_FRAME};
 use crate::grain::Grain;
 use crate::scheduler::Scheduler;
+use freeverb::Freeverb;
 
 const DEFAULT_SAMPLE_RATE: usize = 41000;
 const MAX_DELAY_TIME_SECONDS: usize = 10;
@@ -28,6 +29,7 @@ pub struct Granulator {
     feedback: Feedback,
     wet_dry: WetDry,
     pub new_grain_hook: Option<NewGrainHook>,
+    freeverb: Freeverb,
 }
 
 pub struct GranulatorOptions {
@@ -83,6 +85,8 @@ impl Granulator {
             feedback,
             wet_dry,
             new_grain_hook,
+
+            freeverb: Freeverb::new(DEFAULT_SAMPLE_RATE),
         }
     }
     pub fn process(&mut self, input_frame: Frame) -> Frame {
@@ -100,7 +104,10 @@ impl Granulator {
 
         self.delay_line.write_and_advance(feedback_frame);
 
-        self.get_output_frame(input_frame, synthesized_frame)
+        let output_frame = self.get_output_frame(input_frame, synthesized_frame);
+        let processed = self.freeverb.tick((output_frame[0], output_frame[1]));
+
+        [processed.0, processed.1]
     }
 
     fn get_output_frame(

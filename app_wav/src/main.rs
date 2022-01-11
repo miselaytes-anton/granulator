@@ -73,7 +73,7 @@ fn main() -> Result<(), anyhow::Error> {
                     if duration_counter == 41000 {
                         duration_counter = 0;
                         let duration = rng.gen_range(1000.0..3000.0);
-                        let pitch = rng.gen_range(0.1..10.0);
+                        let pitch = rng.gen_range(0.5..2.0);
                         //println!("duration = {}, pitch = {}\n", duration, pitch);
                         granulator.set_duration(duration);
                         granulator.set_pitch(pitch);

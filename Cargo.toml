@@ -3,4 +3,5 @@ members = [
   "app_wav",
   "app_wasm",
   "granulator",
+  "freeverb"
 ]
