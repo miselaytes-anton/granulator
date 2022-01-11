@@ -32,17 +32,17 @@ pub struct Granulator {
 
 pub struct GranulatorOptions {
     // 1 - 410000
-    position: Position,
+    pub position: Position,
     // 1.0 - 100.0
-    density: Density,
+    pub density: Density,
     // in samples, commonly 400 - 3000 samples (so that it matches 10 to 70 ms for 41000 sr)
-    duration: Duration,
+    pub duration: Duration,
     // 0.1 - 10.0
-    pitch: Pitch,
-    volume: Volume,
-    feedback: Feedback,
-    wet_dry: WetDry,
-    new_grain_hook: Option<NewGrainHook>,
+    pub pitch: Pitch,
+    pub volume: Volume,
+    pub feedback: Feedback,
+    pub wet_dry: WetDry,
+    pub new_grain_hook: Option<NewGrainHook>,
 }
 
 impl Default for GranulatorOptions {

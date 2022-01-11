@@ -23,8 +23,8 @@ impl DelayLine {
     pub fn read(&self, delay_length: f32) -> Frame {
         let index_fractional = self.get_read_index_fractional(delay_length);
         let index_next = index_fractional.ceil();
-        let index_next = if index_next == self.max_length {
-            0.0
+        let index_next = if index_next >= self.max_length {
+            self.max_length - 1.0
         } else {
             index_next
         };
@@ -55,17 +55,23 @@ impl DelayLine {
         }
     }
 
+    /**
+     * Read index = write index - delay length.
+     * Can be in then range [0, max_length - 1]
+     */
     fn get_read_index_fractional(&self, mut delay_length: f32) -> f32 {
         if delay_length < 0.0 {
+            // Trying to read the future.
             delay_length = 0.0;
         }
         if delay_length >= self.max_length {
+            // Going to far in the past.
             delay_length = self.max_length - 1.0;
         }
 
         let write_index_f32 = self.write_index as f32;
         let read_index = if delay_length > write_index_f32 {
-            self.max_length + write_index_f32 - delay_length
+            self.max_length - 1.0 + write_index_f32 - delay_length
         } else {
             write_index_f32 - delay_length
         };

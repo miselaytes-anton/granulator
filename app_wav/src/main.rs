@@ -45,7 +45,10 @@ fn main() -> Result<(), anyhow::Error> {
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = std::sync::mpsc::sync_channel(1);
     let _delay_time_seconds: usize = 2;
-    let mut granulator = Granulator::new(GranulatorOptions::default());
+    let options = GranulatorOptions {
+        ..GranulatorOptions::default()
+    };
+    let mut granulator = Granulator::new(options);
     //granulator.set_new_grain_hook(Some(|duration| println!("duration = {}\n", duration)));
 
     let mut counter = 0;
@@ -69,8 +72,11 @@ fn main() -> Result<(), anyhow::Error> {
                     duration_counter += 1;
                     if duration_counter == 41000 {
                         duration_counter = 0;
-                        let duration: usize = rng.gen_range(1000..3000);
-                        granulator.set_duration(duration)
+                        let duration = rng.gen_range(1000..3000);
+                        let pitch = rng.gen_range(0.1..10.0);
+                        //println!("duration = {}, pitch = {}\n", duration, pitch);
+                        granulator.set_duration(duration);
+                        granulator.set_pitch(pitch);
                     }
                     *out_frame = processed
                 }
