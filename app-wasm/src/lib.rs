@@ -58,12 +58,12 @@ impl Granulator {
         self.0.set_position(position)
     }
 
-    pub fn set_duration(&mut self, duration: usize) {
+    pub fn set_duration(&mut self, duration: f32) {
         self.0.set_duration(duration)
     }
 
     pub fn set_new_grain_hook(&mut self) {
-        let hook = |duration: usize| unsafe {
+        let hook = |duration: f32| unsafe {
             let js_duration: JsValue = duration.into();
             addGrain(js_duration);
         };

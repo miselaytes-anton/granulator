@@ -3,19 +3,19 @@ use crate::frame::{Frame, SILENT_FRAME};
 use crate::grain::Grain;
 use crate::scheduler::Scheduler;
 
-type NewGrainHook = fn(duration: usize);
-
 const DEFAULT_SAMPLE_RATE: usize = 41000;
 const MAX_DELAY_TIME_SECONDS: usize = 10;
 const MAX_GRAINS: usize = 100;
 
 type Density = f32;
 type Position = f32;
-type Duration = usize;
+type Duration = f32;
 type Pitch = f32;
 type Volume = f32;
 type Feedback = f32;
 type WetDry = f32;
+
+type NewGrainHook = fn(duration: Duration);
 
 pub struct Granulator {
     scheduler: Scheduler,
@@ -50,7 +50,7 @@ impl Default for GranulatorOptions {
         GranulatorOptions {
             position: DEFAULT_SAMPLE_RATE as f32,
             density: 50.0,
-            duration: 3000,
+            duration: 3000.0,
             pitch: 1.0,
             volume: 0.5,
             feedback: 0.6,
@@ -74,7 +74,7 @@ impl Granulator {
 
         Granulator {
             scheduler: Scheduler::new(density),
-            grains_pool: [Grain::new(position, duration as f32, pitch); MAX_GRAINS],
+            grains_pool: [Grain::new(position, duration, pitch); MAX_GRAINS],
             delay_line,
             position,
             duration,
@@ -160,7 +160,7 @@ impl Granulator {
     fn activate_grain(&mut self) {
         for grain in self.grains_pool.iter_mut() {
             if grain.is_active == false {
-                grain.activate(self.position, self.duration as f32, self.pitch);
+                grain.activate(self.position, self.duration, self.pitch);
                 continue;
             }
         }

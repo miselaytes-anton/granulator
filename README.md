@@ -14,7 +14,6 @@ cargo run -p app_wav
 - Move reverb to rust
 - Independent panning of each grain to create spatially diffused textures
 - Ramping the source playback rate of each grain to create glissandi grains or ‘chirps.’
-- Make duration a float
 
 ## References
 
