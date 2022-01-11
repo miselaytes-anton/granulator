@@ -119,9 +119,9 @@ impl Freeverb {
         };
 
         freeverb.set_wet(1.0);
-        freeverb.set_width(0.2);
-        freeverb.set_dampening(0.2);
-        freeverb.set_room_size(0.2);
+        freeverb.set_width(0.1);
+        freeverb.set_dampening(0.1);
+        freeverb.set_room_size(0.1);
         freeverb.set_frozen(false);
 
         freeverb
