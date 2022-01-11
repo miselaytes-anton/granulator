@@ -9,6 +9,9 @@ cargo run -p app_wav
 ## Some ideas
 
 - Randomize position, density, grain length based on "chaos" parameter
+- Freeze button
+- Audio worklet
+- Move reverb to rust
 - Independent panning of each grain to create spatially diffused textures
 - Ramping the source playback rate of each grain to create glissandi grains or ‘chirps.’
 - Make duration a float

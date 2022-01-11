@@ -20,8 +20,8 @@ wasm.then((wasm) => {
   });
 
   track.connect(granulatorProcessor);
-  //granulatorProcessor.connect(reverb.input);
-  granulatorProcessor.connect(context.destination);
+  granulatorProcessor.connect(reverb.input);
+  //granulatorProcessor.connect(context.destination);
 
   reverb.connect(context.destination);
 
