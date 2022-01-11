@@ -1,4 +1,4 @@
-use crate::constants::Frame;
+use crate::frame::Frame;
 
 pub struct DelayLine {
     buffer: Vec<Frame>,

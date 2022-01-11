@@ -10,7 +10,9 @@ pub struct Granulator(granulator::Granulator);
 
 impl Default for Granulator {
     fn default() -> Self {
-        Self(granulator::Granulator::new(41000, 1.0, 300, 1.0))
+        Self(granulator::Granulator::new(
+            granulator::GranulatorOptions::default(),
+        ))
     }
 }
 

@@ -1,7 +1,9 @@
-use crate::constants::{Frame, GRAIN_AMPLITUDE, SILENT_FRAME};
+use crate::frame::{Frame, SILENT_FRAME};
 
 use crate::delay_line::DelayLine;
 use crate::parabolic_envelope::ParabolicEnvelope;
+
+const GRAIN_AMPLITUDE: f32 = 0.7;
 
 #[derive(Copy, Clone)]
 pub struct Grain {

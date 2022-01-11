@@ -1,4 +1,4 @@
-use granulator::Granulator;
+use granulator::{Granulator, GranulatorOptions};
 use rand::Rng;
 
 use cpal;
@@ -45,7 +45,7 @@ fn main() -> Result<(), anyhow::Error> {
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = std::sync::mpsc::sync_channel(1);
     let _delay_time_seconds: usize = 2;
-    let mut granulator = Granulator::new(41000, 50.0, 3000, 1.0);
+    let mut granulator = Granulator::new(GranulatorOptions::default());
     //granulator.set_new_grain_hook(Some(|duration| println!("duration = {}\n", duration)));
 
     let mut counter = 0;

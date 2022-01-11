@@ -1,34 +1,77 @@
-use crate::constants::{
-    Frame, DEFAULT_DELAY_FEEDBACK, DEFAULT_VOLUME, DEFAULT_WET_DRY, MAX_DELAY_TIME_SECONDS,
-    MAX_GRAINS, SAMPLE_RATE, SILENT_FRAME,
-};
 use crate::delay_line::DelayLine;
+use crate::frame::{Frame, SILENT_FRAME};
 use crate::grain::Grain;
 use crate::scheduler::Scheduler;
 
 type NewGrainHook = fn(duration: usize);
 
+const DEFAULT_SAMPLE_RATE: usize = 41000;
+const MAX_DELAY_TIME_SECONDS: usize = 10;
+const MAX_GRAINS: usize = 100;
+
+type Density = f32;
+type Position = usize;
+type Duration = usize;
+type Pitch = f32;
+type Volume = f32;
+type Feedback = f32;
+type WetDry = f32;
+
 pub struct Granulator {
     scheduler: Scheduler,
     grains_pool: [Grain; MAX_GRAINS],
     delay_line: DelayLine,
-    position: usize,
-    duration: usize,
-    pitch: f32,
-    volume: f32,
-    feedback: f32,
-    wet_dry: f32,
+    position: Position,
+    duration: Duration,
+    pitch: Pitch,
+    volume: Volume,
+    feedback: Feedback,
+    wet_dry: WetDry,
     pub new_grain_hook: Option<NewGrainHook>,
 }
 
+pub struct GranulatorOptions {
+    // 1 - 410000
+    position: Position,
+    // 1.0 - 100.0
+    density: Density,
+    // in samples, commonly 400 - 3000 samples (so that it matches 10 to 70 ms for 41000 sr)
+    duration: Duration,
+    // 0.1 - 10.0
+    pitch: Pitch,
+    volume: Volume,
+    feedback: Feedback,
+    wet_dry: WetDry,
+    new_grain_hook: Option<NewGrainHook>,
+}
+
+impl Default for GranulatorOptions {
+    fn default() -> Self {
+        GranulatorOptions {
+            position: DEFAULT_SAMPLE_RATE,
+            density: 50.0,
+            duration: 3000,
+            pitch: 1.0,
+            volume: 0.5,
+            feedback: 0.6,
+            wet_dry: 1.0,
+            new_grain_hook: None,
+        }
+    }
+}
+
 impl Granulator {
-    /**
-     * position: 1 - 410000
-     * density: 1.0 - 100.0
-     * duration: in samples, commonly 400 - 3000 samples (so that it matches 10 to 70 ms for 41000 sr)
-     */
-    pub fn new(position: usize, density: f32, duration: usize, pitch: f32) -> Granulator {
-        let delay_line = DelayLine::new(MAX_DELAY_TIME_SECONDS * SAMPLE_RATE, position);
+    pub fn new(options: GranulatorOptions) -> Granulator {
+        let position = options.position;
+        let duration = options.duration;
+        let density = options.density;
+        let pitch = options.pitch;
+        let volume = options.volume;
+        let feedback = options.feedback;
+        let wet_dry = options.wet_dry;
+        let new_grain_hook = options.new_grain_hook;
+        let delay_line = DelayLine::new(MAX_DELAY_TIME_SECONDS * DEFAULT_SAMPLE_RATE, position);
+
         Granulator {
             scheduler: Scheduler::new(density),
             grains_pool: [Grain::new(position as f32, duration as f32, pitch); MAX_GRAINS],
@@ -36,10 +79,10 @@ impl Granulator {
             position,
             duration,
             pitch,
-            volume: DEFAULT_VOLUME,
-            feedback: DEFAULT_DELAY_FEEDBACK,
-            wet_dry: DEFAULT_WET_DRY,
-            new_grain_hook: None,
+            volume,
+            feedback,
+            wet_dry,
+            new_grain_hook,
         }
     }
     pub fn process(&mut self, input_frame: Frame) -> Frame {
@@ -123,33 +166,33 @@ impl Granulator {
         }
     }
 
-    pub fn set_position(&mut self, position: usize) {
+    pub fn set_position(&mut self, position: Position) {
         self.position = position;
     }
 
-    pub fn set_density(&mut self, density: f32) {
+    pub fn set_density(&mut self, density: Density) {
         self.scheduler.set_density(density);
     }
 
-    pub fn set_duration(&mut self, duration: usize) {
+    pub fn set_duration(&mut self, duration: Duration) {
         self.duration = duration;
     }
-    pub fn set_volume(&mut self, volume: f32) {
+    pub fn set_volume(&mut self, volume: Volume) {
         self.volume = volume;
     }
     pub fn set_new_grain_hook(&mut self, new_grain_hook: Option<NewGrainHook>) {
         self.new_grain_hook = new_grain_hook;
     }
 
-    pub fn set_feedback(&mut self, feedback: f32) {
+    pub fn set_feedback(&mut self, feedback: Feedback) {
         self.feedback = feedback;
     }
 
-    pub fn set_wet_dry(&mut self, wet_dry: f32) {
+    pub fn set_wet_dry(&mut self, wet_dry: WetDry) {
         self.wet_dry = wet_dry;
     }
 
-    pub fn set_pitch(&mut self, pitch: f32) {
+    pub fn set_pitch(&mut self, pitch: Pitch) {
         self.pitch = pitch;
     }
 }
