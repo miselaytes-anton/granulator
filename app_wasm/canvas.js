@@ -63,7 +63,7 @@ const draw = () => {
   });
 };
 
-setInterval(draw, framesPerSecond);
+//setInterval(draw, framesPerSecond);
 
 let totalGrainsAdded = 0;
 let color = getRandomColor();
