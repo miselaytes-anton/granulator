@@ -54,7 +54,7 @@ impl Granulator {
         self.0.set_feedback(feedback)
     }
 
-    pub fn set_position(&mut self, position: usize) {
+    pub fn set_position(&mut self, position: f32) {
         self.0.set_position(position)
     }
 

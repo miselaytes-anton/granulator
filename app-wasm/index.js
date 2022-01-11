@@ -47,7 +47,7 @@ wasm.then((wasm) => {
   });
 
   const volumeSlider = document.getElementById("volume");
-  densitySlider.value = granulatorProcessor.volume;
+  volumeSlider.value = granulatorProcessor.volume;
   volumeSlider.addEventListener("input", function () {
     const value = parseFloat(volumeSlider.value);
     console.log("volume", value);
@@ -55,9 +55,9 @@ wasm.then((wasm) => {
   });
 
   const positionsSlider = document.getElementById("position");
-  densitySlider.value = granulatorProcessor.position;
+  positionsSlider.value = granulatorProcessor.position;
   positionsSlider.addEventListener("input", function () {
-    const value = parseInt(positionsSlider.value);
+    const value = parseFloat(positionsSlider.value);
     console.log("position", value);
     granulator.set_position(value);
   });
@@ -73,7 +73,7 @@ wasm.then((wasm) => {
   const pitchSlider = document.getElementById("pitch");
   pitchSlider.value = granulatorProcessor.pitch;
   pitchSlider.addEventListener("input", function () {
-    const value = pitchSlider.value;
+    const value = parseFloat(pitchSlider.value);
     console.log("pitch", value);
     granulator.set_pitch(value);
   });

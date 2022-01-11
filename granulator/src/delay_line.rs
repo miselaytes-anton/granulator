@@ -7,9 +7,7 @@ pub struct DelayLine {
 }
 
 impl DelayLine {
-    pub fn new(max_length: usize, delay_length: usize) -> Self {
-        assert!(delay_length <= max_length);
-
+    pub fn new(max_length: usize) -> Self {
         Self {
             buffer: vec![[0.0, 0.0]; max_length],
             write_index: 0,

@@ -10,7 +10,7 @@ const MAX_DELAY_TIME_SECONDS: usize = 10;
 const MAX_GRAINS: usize = 100;
 
 type Density = f32;
-type Position = usize;
+type Position = f32;
 type Duration = usize;
 type Pitch = f32;
 type Volume = f32;
@@ -48,7 +48,7 @@ pub struct GranulatorOptions {
 impl Default for GranulatorOptions {
     fn default() -> Self {
         GranulatorOptions {
-            position: DEFAULT_SAMPLE_RATE,
+            position: DEFAULT_SAMPLE_RATE as f32,
             density: 50.0,
             duration: 3000,
             pitch: 1.0,
@@ -70,11 +70,11 @@ impl Granulator {
         let feedback = options.feedback;
         let wet_dry = options.wet_dry;
         let new_grain_hook = options.new_grain_hook;
-        let delay_line = DelayLine::new(MAX_DELAY_TIME_SECONDS * DEFAULT_SAMPLE_RATE, position);
+        let delay_line = DelayLine::new(MAX_DELAY_TIME_SECONDS * DEFAULT_SAMPLE_RATE);
 
         Granulator {
             scheduler: Scheduler::new(density),
-            grains_pool: [Grain::new(position as f32, duration as f32, pitch); MAX_GRAINS],
+            grains_pool: [Grain::new(position, duration as f32, pitch); MAX_GRAINS],
             delay_line,
             position,
             duration,
@@ -160,7 +160,7 @@ impl Granulator {
     fn activate_grain(&mut self) {
         for grain in self.grains_pool.iter_mut() {
             if grain.is_active == false {
-                grain.activate(self.position as f32, self.duration as f32, self.pitch);
+                grain.activate(self.position, self.duration as f32, self.pitch);
                 continue;
             }
         }

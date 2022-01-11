@@ -66,7 +66,7 @@ fn main() -> Result<(), anyhow::Error> {
                     counter += 1;
                     if counter == 20500 {
                         counter = 0;
-                        granulator.set_position(rng.gen_range(1000..41000));
+                        granulator.set_position(rng.gen_range(1000.0..41000.0));
                         granulator.set_density(rng.gen_range(1.0..100.0));
                     }
                     duration_counter += 1;
