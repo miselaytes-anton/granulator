@@ -32,9 +32,9 @@ impl Granulator {
         output_r: &mut [f32],
     ) {
         for i in 0..input_l.len() {
-            let out = self.0.process([input_l[i] as f32, input_r[i] as f32]);
-            output_l[i] = out[0] as f32;
-            output_r[i] = out[1] as f32;
+            let out = self.0.process((input_l[i] as f32, input_r[i] as f32));
+            output_l[i] = out.0 as f32;
+            output_r[i] = out.1 as f32;
         }
     }
 

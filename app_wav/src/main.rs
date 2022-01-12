@@ -60,9 +60,9 @@ fn main() -> Result<(), anyhow::Error> {
         let mut rng = rand::thread_rng();
         let buffer: &mut [[f32; 2]] = data.to_frame_slice_mut().unwrap();
         for out_frame in buffer {
-            match frames.next() {
+            match frames.next() as Option<[f32; 2]> {
                 Some(frame) => {
-                    let processed = granulator.process(frame);
+                    let processed = granulator.process((frame[0], frame[1]));
                     counter += 1;
                     if counter == 20500 {
                         counter = 0;
@@ -78,7 +78,7 @@ fn main() -> Result<(), anyhow::Error> {
                         granulator.set_duration(duration);
                         granulator.set_pitch(pitch);
                     }
-                    *out_frame = processed
+                    *out_frame = [processed.0, processed.1]
                 }
                 None => {
                     complete_tx.try_send(()).ok();

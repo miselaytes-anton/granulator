@@ -105,33 +105,32 @@ impl Granulator {
         self.delay_line.write_and_advance(feedback_frame);
 
         let output_frame = self.get_output_frame(input_frame, synthesized_frame);
-        let processed = self.freeverb.tick((output_frame[0], output_frame[1]));
 
-        [processed.0, processed.1]
+        self.freeverb.tick(output_frame)
     }
 
     fn get_output_frame(
         &mut self,
-        [input_left, input_right]: Frame,
-        [synthesized_left, synthesized_right]: Frame,
+        (input_left, input_right): Frame,
+        (synthesized_left, synthesized_right): Frame,
     ) -> Frame {
         let dry = 1.0 - self.wet_dry;
 
-        [
+        (
             (-input_left * dry + synthesized_left * self.wet_dry) * self.volume,
             (-input_right * dry + synthesized_right * self.wet_dry) * self.volume,
-        ]
+        )
     }
 
     fn get_feedback_frame(
         &mut self,
-        [input_left, input_right]: Frame,
-        [synthesized_left, synthesized_right]: Frame,
+        (input_left, input_right): Frame,
+        (synthesized_left, synthesized_right): Frame,
     ) -> Frame {
-        [
+        (
             input_left + synthesized_left * self.feedback,
             input_right + synthesized_right * self.feedback,
-        ]
+        )
     }
 
     /**
@@ -139,12 +138,12 @@ impl Granulator {
      */
     fn synthesize_active_grains(&mut self) -> Frame {
         let mut num_active_grains: f32 = 0.0;
-        let [mut left, mut right]: Frame = SILENT_FRAME;
+        let (mut left, mut right): Frame = SILENT_FRAME;
         let gain: f32 = 2.0;
 
         for grain in self.grains_pool.iter_mut() {
             if grain.is_active == true {
-                let [left_grain, right_grain] = grain.process(&self.delay_line);
+                let (left_grain, right_grain) = grain.process(&self.delay_line);
                 left += left_grain;
                 right += right_grain;
                 num_active_grains += 1.0;
@@ -152,10 +151,10 @@ impl Granulator {
         }
 
         if num_active_grains > 0.0 {
-            return [
+            return (
                 left / num_active_grains * gain,
                 right / num_active_grains * gain,
-            ];
+            );
         }
 
         SILENT_FRAME

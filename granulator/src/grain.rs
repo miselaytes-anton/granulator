@@ -35,7 +35,7 @@ impl Grain {
         }
         let env = self.envelope.process();
 
-        let [left, right] = delay_line.read(self.position);
+        let (left, right) = delay_line.read(self.position);
 
         self.num_samples_played += self.pitch;
         self.position += 1.0 - self.pitch;
@@ -45,7 +45,7 @@ impl Grain {
             self.num_samples_played = 0.0;
         }
 
-        [left * env, right * env]
+        (left * env, right * env)
     }
 
     pub fn activate(&mut self, position: f32, duration_samples: f32, pitch: f32) {

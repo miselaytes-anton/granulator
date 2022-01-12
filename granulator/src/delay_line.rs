@@ -9,7 +9,7 @@ pub struct DelayLine {
 impl DelayLine {
     pub fn new(max_length: usize) -> Self {
         Self {
-            buffer: vec![[0.0, 0.0]; max_length],
+            buffer: vec![(0.0, 0.0); max_length],
             write_index: 0,
             max_length: max_length as f32,
         }
@@ -33,13 +33,13 @@ impl DelayLine {
         };
         let delta = (index_next - index_fractional).abs();
 
-        let [previous_left, previous_right] = self.buffer[index_previous as usize];
-        let [next_left, next_right] = self.buffer[index_next as usize];
+        let (previous_left, previous_right) = self.buffer[index_previous as usize];
+        let (next_left, next_right) = self.buffer[index_next as usize];
 
-        let result = [
+        let result = (
             next_left + delta * (previous_left - next_left),
             next_right + delta * (previous_right - next_right),
-        ];
+        );
         result
     }
 
