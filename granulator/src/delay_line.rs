@@ -1,17 +1,20 @@
 use crate::frame::Frame;
 
+// 10 seconds with 41000 sample rate
+const MAX_DELAY_LENGTH_SAMPLES: usize = 410000;
+
 pub struct DelayLine {
-    buffer: Vec<Frame>,
+    buffer: [Frame; MAX_DELAY_LENGTH_SAMPLES],
     write_index: usize,
     pub max_length: f32,
 }
 
 impl DelayLine {
-    pub fn new(max_length: usize) -> Self {
+    pub fn new() -> Self {
         Self {
-            buffer: vec![(0.0, 0.0); max_length],
+            buffer: [(0.0, 0.0); MAX_DELAY_LENGTH_SAMPLES],
             write_index: 0,
-            max_length: max_length as f32,
+            max_length: MAX_DELAY_LENGTH_SAMPLES as f32,
         }
     }
 

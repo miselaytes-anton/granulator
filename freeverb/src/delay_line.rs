@@ -1,12 +1,15 @@
+// 10 seconds with 41000 sample rate
+const MAX_DELAY_LENGTH_SAMPLES: usize = 410000;
+
 pub struct DelayLine {
-    buffer: Vec<f32>,
+    buffer: [f32; MAX_DELAY_LENGTH_SAMPLES],
     index: usize,
 }
 
 impl DelayLine {
-    pub fn new(length: usize) -> Self {
+    pub fn new(_length: usize) -> Self {
         Self {
-            buffer: vec![0.0; length],
+            buffer: [0.0; MAX_DELAY_LENGTH_SAMPLES],
             index: 0,
         }
     }

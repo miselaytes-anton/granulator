@@ -5,7 +5,6 @@ use crate::scheduler::Scheduler;
 use freeverb::Freeverb;
 
 const DEFAULT_SAMPLE_RATE: usize = 41000;
-const MAX_DELAY_TIME_SECONDS: usize = 10;
 const MAX_GRAINS: usize = 100;
 
 type Density = f32;
@@ -72,7 +71,7 @@ impl Granulator {
         let feedback = options.feedback;
         let wet_dry = options.wet_dry;
         let new_grain_hook = options.new_grain_hook;
-        let delay_line = DelayLine::new(MAX_DELAY_TIME_SECONDS * DEFAULT_SAMPLE_RATE);
+        let delay_line = DelayLine::new();
 
         Granulator {
             scheduler: Scheduler::new(density),
@@ -105,8 +104,8 @@ impl Granulator {
         self.delay_line.write_and_advance(feedback_frame);
 
         let output_frame = self.get_output_frame(input_frame, synthesized_frame);
-
-        self.freeverb.tick(output_frame)
+        output_frame
+        //self.freeverb.tick(output_frame)
     }
 
     fn get_output_frame(
