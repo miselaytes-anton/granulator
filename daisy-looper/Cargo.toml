@@ -1,0 +1,18 @@
+# cargo-features = ["per-package-target"]
+
+[package]
+name = "daisy-looper"
+version = "0.1.0"
+authors = ["Matthew Meyer <mtthw.meyer@gmail.com>"]
+edition = "2018"
+# forced-target = "thumbv7em-none-eabihf"
+
+
+[dependencies]
+cortex-m = "0.6.2"
+cortex-m-rtic = "0.5.6"
+log = "0.4.11"
+stm32h7xx-hal = { version = "0.9.0", features = ["stm32h750v", "rt", "fmc"] }
+libdaisy = { version = "0.1.0", features = [
+    "log-rtt",
+], git = "https://github.com/mtthw-meyer/libdaisy-rust.git" }
