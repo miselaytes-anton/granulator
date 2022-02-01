@@ -45,7 +45,9 @@ fn main() -> Result<(), anyhow::Error> {
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = std::sync::mpsc::sync_channel(1);
     let _delay_time_seconds: usize = 2;
+    static mut delay_line_buffer: [(f32, f32); 480000] = [(0.0f32, 0.0f32); 480000];
     let options = GranulatorOptions {
+        delay_line_buffer: Some(unsafe { &mut delay_line_buffer }),
         ..GranulatorOptions::default()
     };
     let mut granulator = Granulator::new(options);

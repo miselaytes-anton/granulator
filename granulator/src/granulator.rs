@@ -1,9 +1,9 @@
-use crate::delay_line::DelayLine;
+use crate::delay_line::{DelayLine, DelayLineBuffer};
 use crate::frame::{Frame, SILENT_FRAME};
 use crate::grain::Grain;
 use crate::scheduler::Scheduler;
 
-const DEFAULT_SAMPLE_RATE: usize = 41000;
+const DEFAULT_SAMPLE_RATE: usize = 48000;
 const MAX_GRAINS: usize = 100;
 
 type Density = f32;
@@ -16,10 +16,10 @@ type WetDry = f32;
 
 type NewGrainHook = fn(duration: Duration);
 
-pub struct Granulator {
+pub struct Granulator<'a> {
     scheduler: Scheduler,
     grains_pool: [Grain; MAX_GRAINS],
-    delay_line: DelayLine,
+    delay_line: DelayLine<'a>,
     position: Position,
     duration: Duration,
     pitch: Pitch,
@@ -29,7 +29,7 @@ pub struct Granulator {
     pub new_grain_hook: Option<NewGrainHook>,
 }
 
-pub struct GranulatorOptions {
+pub struct GranulatorOptions<'a> {
     // 1 - 410000
     pub position: Position,
     // 1.0 - 100.0
@@ -42,9 +42,10 @@ pub struct GranulatorOptions {
     pub feedback: Feedback,
     pub wet_dry: WetDry,
     pub new_grain_hook: Option<NewGrainHook>,
+    pub delay_line_buffer: Option<&'a mut DelayLineBuffer>,
 }
 
-impl Default for GranulatorOptions {
+impl<'a> Default for GranulatorOptions<'a> {
     fn default() -> Self {
         GranulatorOptions {
             position: DEFAULT_SAMPLE_RATE as f32,
@@ -55,11 +56,12 @@ impl Default for GranulatorOptions {
             feedback: 0.6,
             wet_dry: 1.0,
             new_grain_hook: None,
+            delay_line_buffer: None,
         }
     }
 }
 
-impl Granulator {
+impl<'a> Granulator<'a> {
     pub fn new(options: GranulatorOptions) -> Granulator {
         let position = options.position;
         let duration = options.duration;
@@ -69,7 +71,8 @@ impl Granulator {
         let feedback = options.feedback;
         let wet_dry = options.wet_dry;
         let new_grain_hook = options.new_grain_hook;
-        let delay_line = DelayLine::new();
+        let delay_line_buffer = options.delay_line_buffer.unwrap();
+        let delay_line = DelayLine::new(delay_line_buffer);
 
         Granulator {
             scheduler: Scheduler::new(density),
