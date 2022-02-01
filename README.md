@@ -5,8 +5,8 @@
 ```
 cargo run -p app_wav
 
-cd daisy-looper
-cargo objcopy -p daisy-looper -- -O binary bin/app_daisy.bin
+cd app_daisy
+cargo objcopy -p app_daisy -- -O binary bin/app_daisy.bin
 ```
 
 ## Some ideas

@@ -1,5 +1,5 @@
 [workspace]
-members = ["daisy-looper", "app_wav", "app_wasm", "granulator", "freeverb"]
+members = ["app_daisy", "app_wav", "app_wasm", "granulator", "freeverb"]
 
 [profile.dev]
 codegen-units = 1   # better optimizations

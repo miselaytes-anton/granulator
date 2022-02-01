@@ -1,11 +1,7 @@
-# cargo-features = ["per-package-target"]
-
 [package]
-name = "daisy-looper"
+name = "app_daisy"
 version = "0.1.0"
-authors = ["Matthew Meyer <mtthw.meyer@gmail.com>"]
 edition = "2018"
-# forced-target = "thumbv7em-none-eabihf"
 
 
 [dependencies]

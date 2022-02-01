@@ -14,7 +14,7 @@ use libdaisy::logger;
 use libdaisy::prelude::*;
 use libdaisy::system;
 
-use daisy_looper::*;
+use app_daisy::*;
 
 // const LOOP_BUFFFER_SIZE: usize = 64 * 1024 * 1024 / 2 / mem::size_of::<u32>();
 const LOOP_BUFFFER_SIZE: usize = libdaisy::sdram::Sdram::bytes() / 2 / mem::size_of::<f32>();

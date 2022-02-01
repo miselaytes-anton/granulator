@@ -40,6 +40,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b26702f315f53b6071259e15dd9d64528213b44d61de1ec926eca7715d62203"
 
 [[package]]
+name = "app_daisy"
+version = "0.1.0"
+dependencies = [
+ "cortex-m 0.6.7",
+ "cortex-m-rtic",
+ "libdaisy",
+ "log",
+ "stm32h7xx-hal",
+]
+
+[[package]]
 name = "app_wasm"
 version = "0.1.0"
 dependencies = [
@@ -321,17 +332,6 @@ dependencies = [
  "thiserror",
  "web-sys",
  "winapi",
-]
-
-[[package]]
-name = "daisy-looper"
-version = "0.1.0"
-dependencies = [
- "cortex-m 0.6.7",
- "cortex-m-rtic",
- "libdaisy",
- "log",
- "stm32h7xx-hal",
 ]
 
 [[package]]
