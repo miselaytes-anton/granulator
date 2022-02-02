@@ -11,5 +11,5 @@ anyhow = "1"
 cpal = "0.12"
 find_folder = "0.3"
 hound = "3"
-rand = "0.8.3"
+rand = { version = "0.8.3", features = ["small_rng"], default-features = false }
 granulator = { path = "../granulator" }

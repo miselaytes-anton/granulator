@@ -1,8 +1,11 @@
-use rand::Rng;
+use libm::{ceilf, logf};
+use rand::rngs::SmallRng;
+use rand::{Rng, SeedableRng};
 
 pub struct Scheduler {
     next_onset: usize,
     density: f32,
+    small_rng: SmallRng,
 }
 
 impl Scheduler {
@@ -10,6 +13,7 @@ impl Scheduler {
         Scheduler {
             next_onset: 0,
             density,
+            small_rng: SmallRng::seed_from_u64(10),
         }
     }
 
@@ -31,10 +35,10 @@ impl Scheduler {
      * Calculates number of samples after which a new grain
      * should be activated. Calculation is based on density.
      */
-    fn calculate_next_interonset(&self) -> usize {
-        let mut rng = rand::thread_rng();
-        let random: f32 = rng.gen_range(0.1..1.0);
-        let interonset = -(random.ln() / self.density * 1000.0).ceil() as usize;
+    fn calculate_next_interonset(&mut self) -> usize {
+        let random: f32 = self.small_rng.gen_range(0.1..1.0);
+
+        let interonset = -ceilf(logf(random) / self.density * 1000.0f32) as usize;
         if interonset == 0 {
             return 1;
         }

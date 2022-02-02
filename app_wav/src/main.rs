@@ -1,5 +1,6 @@
 use granulator::{Frame as GranulatorFrame, Granulator, GranulatorOptions, SILENT_FRAME};
-use rand::Rng;
+use rand::rngs::SmallRng;
+use rand::{Rng, SeedableRng};
 
 use cpal;
 use cpal::traits::{DeviceTrait, HostTrait, StreamTrait};
@@ -59,7 +60,7 @@ fn main() -> Result<(), anyhow::Error> {
     // Create and run the CPAL stream.
     let err_fn = |err| eprintln!("an error occurred on stream: {}", err);
     let data_fn = move |data: &mut [f32], _info: &cpal::OutputCallbackInfo| {
-        let mut rng = rand::thread_rng();
+        let mut rng = SmallRng::seed_from_u64(10);
         let buffer: &mut [[f32; 2]] = data.to_frame_slice_mut().unwrap();
         for out_frame in buffer {
             match frames.next() as Option<[f32; 2]> {

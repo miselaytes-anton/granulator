@@ -1,4 +1,5 @@
 use crate::frame::Frame;
+use libm::{ceilf, fabsf};
 
 pub type DelayLineBuffer<const N: usize> = [Frame; N];
 
@@ -23,7 +24,7 @@ impl<'a, const N: usize> DelayLine<'a, N> {
      */
     pub fn read(&self, delay_length: f32) -> Frame {
         let index_fractional = self.get_read_index_fractional(delay_length);
-        let index_next = index_fractional.ceil();
+        let index_next = ceilf(index_fractional);
         let index_next = if index_next >= self.max_length {
             self.max_length - 1.0
         } else {
@@ -34,7 +35,7 @@ impl<'a, const N: usize> DelayLine<'a, N> {
         } else {
             index_next - 1.0
         };
-        let delta = (index_next - index_fractional).abs();
+        let delta = fabsf(index_next - index_fractional);
 
         let (previous_left, previous_right) = self.buffer[index_previous as usize];
         let (next_left, next_right) = self.buffer[index_next as usize];
