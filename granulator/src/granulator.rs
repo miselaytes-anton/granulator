@@ -3,7 +3,6 @@ use crate::frame::{Frame, SILENT_FRAME};
 use crate::grain::Grain;
 use crate::scheduler::Scheduler;
 
-const DEFAULT_SAMPLE_RATE: usize = 48000;
 const MAX_GRAINS: usize = 100;
 
 type Density = f32;
@@ -16,10 +15,10 @@ type WetDry = f32;
 
 type NewGrainHook = fn(duration: Duration);
 
-pub struct Granulator<'a> {
+pub struct Granulator<'a, const N: usize> {
     scheduler: Scheduler,
     grains_pool: [Grain; MAX_GRAINS],
-    delay_line: DelayLine<'a>,
+    delay_line: DelayLine<'a, N>,
     position: Position,
     duration: Duration,
     pitch: Pitch,
@@ -29,7 +28,7 @@ pub struct Granulator<'a> {
     pub new_grain_hook: Option<NewGrainHook>,
 }
 
-pub struct GranulatorOptions<'a> {
+pub struct GranulatorOptions<'a, const N: usize> {
     // 1 - 410000
     pub position: Position,
     // 1.0 - 100.0
@@ -42,13 +41,13 @@ pub struct GranulatorOptions<'a> {
     pub feedback: Feedback,
     pub wet_dry: WetDry,
     pub new_grain_hook: Option<NewGrainHook>,
-    pub delay_line_buffer: Option<&'a mut DelayLineBuffer>,
+    pub delay_line_buffer: Option<&'a mut DelayLineBuffer<N>>,
 }
 
-impl<'a> Default for GranulatorOptions<'a> {
+impl<'a, const N: usize> Default for GranulatorOptions<'a, N> {
     fn default() -> Self {
         GranulatorOptions {
-            position: DEFAULT_SAMPLE_RATE as f32,
+            position: (N / 2 + 1) as f32,
             density: 50.0,
             duration: 3000.0,
             pitch: 1.0,
@@ -61,8 +60,8 @@ impl<'a> Default for GranulatorOptions<'a> {
     }
 }
 
-impl<'a> Granulator<'a> {
-    pub fn new(options: GranulatorOptions) -> Granulator {
+impl<'a, const N: usize> Granulator<'a, N> {
+    pub fn new(options: GranulatorOptions<'a, N>) -> Granulator<'a, N> {
         let position = options.position;
         let duration = options.duration;
         let density = options.density;

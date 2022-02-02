@@ -1,22 +1,20 @@
 use crate::frame::Frame;
 
-// 10 seconds with 48000 sample rate
-const MAX_DELAY_LENGTH_SAMPLES: usize = 480000;
+pub type DelayLineBuffer<const N: usize> = [Frame; N];
 
-pub type DelayLineBuffer = [Frame; MAX_DELAY_LENGTH_SAMPLES];
-
-pub struct DelayLine<'a> {
-    buffer: &'a mut DelayLineBuffer,
+pub struct DelayLine<'a, const N: usize> {
+    buffer: &'a mut DelayLineBuffer<N>,
     write_index: usize,
     pub max_length: f32,
 }
 
-impl<'a> DelayLine<'a> {
-    pub fn new(buffer: &'a mut DelayLineBuffer) -> Self {
+impl<'a, const N: usize> DelayLine<'a, N> {
+    pub fn new(buffer: &'a mut DelayLineBuffer<N>) -> Self {
+        let max_length = buffer.len() as f32;
         Self {
             buffer,
             write_index: 0,
-            max_length: MAX_DELAY_LENGTH_SAMPLES as f32,
+            max_length,
         }
     }
 

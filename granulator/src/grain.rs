@@ -29,7 +29,7 @@ impl Grain {
         }
     }
 
-    pub fn process(&mut self, delay_line: &DelayLine) -> Frame {
+    pub fn process<const N: usize>(&mut self, delay_line: &DelayLine<N>) -> Frame {
         if self.is_active == false {
             return SILENT_FRAME;
         }

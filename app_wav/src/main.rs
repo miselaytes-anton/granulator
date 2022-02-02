@@ -1,4 +1,4 @@
-use granulator::{Granulator, GranulatorOptions};
+use granulator::{Frame as GranulatorFrame, Granulator, GranulatorOptions, SILENT_FRAME};
 use rand::Rng;
 
 use cpal;
@@ -45,9 +45,9 @@ fn main() -> Result<(), anyhow::Error> {
     // A channel for indicating when playback has completed.
     let (complete_tx, complete_rx) = std::sync::mpsc::sync_channel(1);
     let _delay_time_seconds: usize = 2;
-    static mut delay_line_buffer: [(f32, f32); 480000] = [(0.0f32, 0.0f32); 480000];
+    static mut DELAY_LINE_BUFFER: [GranulatorFrame; 480000] = [SILENT_FRAME; 480000];
     let options = GranulatorOptions {
-        delay_line_buffer: Some(unsafe { &mut delay_line_buffer }),
+        delay_line_buffer: Some(unsafe { &mut DELAY_LINE_BUFFER }),
         ..GranulatorOptions::default()
     };
     let mut granulator = Granulator::new(options);

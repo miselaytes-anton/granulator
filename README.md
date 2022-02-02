@@ -6,7 +6,7 @@
 cargo run -p app_wav
 
 cd app_daisy
-cargo objcopy -p app_daisy -- -O binary bin/app_daisy.bin
+cargo objcopy -p app_daisy -- -O binary app_daisy.bin
 ```
 
 ## Some ideas
