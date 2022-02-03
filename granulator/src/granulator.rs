@@ -28,7 +28,7 @@ pub struct Granulator<'a, const N: usize> {
     pub new_grain_hook: Option<NewGrainHook>,
 }
 
-pub struct GranulatorOptions<'a, const N: usize> {
+pub struct GranulatorOptions<const N: usize> {
     // 1 - 410000
     pub position: Position,
     // 1.0 - 100.0
@@ -41,10 +41,10 @@ pub struct GranulatorOptions<'a, const N: usize> {
     pub feedback: Feedback,
     pub wet_dry: WetDry,
     pub new_grain_hook: Option<NewGrainHook>,
-    pub delay_line_buffer: Option<&'a mut DelayLineBuffer<N>>,
+    pub delay_line_buffer: Option<&'static mut DelayLineBuffer<N>>,
 }
 
-impl<'a, const N: usize> Default for GranulatorOptions<'a, N> {
+impl<const N: usize> Default for GranulatorOptions<N> {
     fn default() -> Self {
         GranulatorOptions {
             position: (N / 2 + 1) as f32,
@@ -61,7 +61,7 @@ impl<'a, const N: usize> Default for GranulatorOptions<'a, N> {
 }
 
 impl<'a, const N: usize> Granulator<'a, N> {
-    pub fn new(options: GranulatorOptions<'a, N>) -> Granulator<'a, N> {
+    pub fn new(options: GranulatorOptions<N>) -> Granulator<'a, N> {
         let position = options.position;
         let duration = options.duration;
         let density = options.density;

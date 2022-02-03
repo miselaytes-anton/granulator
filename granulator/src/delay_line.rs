@@ -1,8 +1,7 @@
-use crate::frame::Frame;
+pub type Frame = (f32, f32);
 use libm::{ceilf, fabsf};
 
 pub type DelayLineBuffer<const N: usize> = [Frame; N];
-
 pub struct DelayLine<'a, const N: usize> {
     buffer: &'a mut DelayLineBuffer<N>,
     write_index: usize,
