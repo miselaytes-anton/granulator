@@ -3,7 +3,7 @@ use crate::frame::{Frame, SILENT_FRAME};
 use crate::grain::Grain;
 use crate::scheduler::Scheduler;
 
-const MAX_GRAINS: usize = 100;
+const MAX_GRAINS: usize = 10;
 
 type Density = f32;
 type Position = f32;
@@ -53,7 +53,7 @@ impl<const N: usize> Default for GranulatorOptions<N> {
             pitch: 1.0,
             volume: 0.5,
             feedback: 0.6,
-            wet_dry: 1.0,
+            wet_dry: 0.5,
             new_grain_hook: None,
             delay_line_buffer: None,
         }
@@ -87,13 +87,16 @@ impl<'a, const N: usize> Granulator<'a, N> {
         }
     }
     pub fn process(&mut self, input_frame: Frame) -> Frame {
+        // if (self.delay_line.write_index == 0) {
+        //     self.activate_grain();
+        // }
         let should_start_new_grain = self.scheduler.advance();
         if should_start_new_grain {
             self.activate_grain();
-            match &self.new_grain_hook {
-                Some(new_grain_hook) => new_grain_hook(self.duration),
-                None => {}
-            }
+            // match &self.new_grain_hook {
+            //     Some(new_grain_hook) => new_grain_hook(self.duration),
+            //     None => {}
+            // }
         }
 
         let synthesized_frame = self.synthesize_active_grains();
@@ -102,6 +105,8 @@ impl<'a, const N: usize> Granulator<'a, N> {
         self.delay_line.write_and_advance(feedback_frame);
 
         self.get_output_frame(input_frame, synthesized_frame)
+
+        // (0.0, 0.0)
     }
 
     fn get_output_frame(

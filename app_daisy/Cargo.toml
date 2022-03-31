@@ -6,10 +6,21 @@ edition = "2018"
 
 [dependencies]
 granulator = { path = "../granulator" }
-cortex-m = "0.6.2"
-cortex-m-rtic = "0.5.6"
+cortex-m = "^0.7.1"
 log = "0.4.11"
-stm32h7xx-hal = { version = "0.9.0", features = ["stm32h750v", "rt", "fmc"] }
-libdaisy = { version = "0.1.0", features = [
-    "log-rtt",
-], git = "https://github.com/mtthw-meyer/libdaisy-rust.git" }
+stm32h7xx-hal = { version = "0.11.0", features = [
+    "stm32h750v",
+    "fmc",
+    "rt",
+    "revision_v",
+    "usb_hs",
+] }
+daisy_bsp = { git = "https://github.com/miselaytes-anton/daisy_bsp", branch = "anton/sdram", features = [
+    "alloc",
+    "uses_num",
+] }
+cortex-m-rt = { version = "^0.6.13", features = ["device"] }
+micromath = "1.1.1"
+rtt-target = { version = "0.3.0", features = ["cortex-m"] }
+panic-rtt-target = { version = "0.1.1", features = ["cortex-m"] }
+cortex-m-semihosting = "0.3.5"

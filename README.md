@@ -8,6 +8,9 @@ cargo run -p app_wav
 cd app_daisy
 cargo objcopy -p app_daisy -- -O binary app_daisy.bin
 cargo build -p app_daisy
+
+cargo build -Zbuild-std -p app_daisy
+cargo +nightly embed -p app_daisy
 ```
 
 ## Some ideas

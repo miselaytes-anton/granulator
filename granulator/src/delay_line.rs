@@ -3,8 +3,8 @@ use libm::{ceilf, fabsf};
 
 pub type DelayLineBuffer<const N: usize> = [Frame; N];
 pub struct DelayLine<'a, const N: usize> {
-    buffer: &'a mut DelayLineBuffer<N>,
-    write_index: usize,
+    pub buffer: &'a mut DelayLineBuffer<N>,
+    pub write_index: usize,
     pub max_length: f32,
 }
 
