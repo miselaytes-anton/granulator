@@ -1,5 +1,11 @@
 # Granulator
 
+The idea was to create a Granular Delay effect using Rust on Daisy DSP chip. To speed up prototyping I also created:
+- a test app which processing WAV files on the local machine and outputs the processed audio
+- a web app which runs Rust code using WASM
+
+While the test apps worked, the actual embedded code on the Daisy did not for mysterious reasons.
+
 ## Run
 
 ```
